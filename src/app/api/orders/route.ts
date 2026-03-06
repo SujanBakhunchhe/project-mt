@@ -26,10 +26,11 @@ export async function POST(req: Request) {
         orderNumber,
         userId: session.user.id,
         total,
+        subtotal,
+        shipping: total - subtotal,
         status: "Processing",
         paymentMethod: payment.method,
-        shippingAddress: `${shipping.address}, ${shipping.city}`,
-        shippingPhone: shipping.phone,
+        shippingAddress: shipping,
         orderItems: {
           create: items.map((item: any) => ({
             productId: item.productId,
