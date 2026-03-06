@@ -8,7 +8,7 @@ import { useCart } from "@/components/CartProvider";
 import { useSession } from "next-auth/react";
 
 interface Part {
-  id: string | number;
+  id: string;
   name: string;
   price: number;
   marketPrice: number;
