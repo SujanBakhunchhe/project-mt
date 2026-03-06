@@ -4,19 +4,43 @@ import { useState } from "react";
 import { PrimaryButton } from "@/components/Buttons";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ToastProvider";
 
 export default function ContactPage() {
+  const { showToast } = useToast();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
-    subject: "",
     message: ""
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Message sent! We'll get back to you soon.");
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        showToast(data.error || "Failed to send message", "error");
+        return;
+      }
+
+      showToast("Message sent successfully! We'll get back to you soon.", "success");
+      setFormData({ name: "", email: "", phone: "", message: "" });
+    } catch (error) {
+      showToast("Failed to send message", "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -59,16 +83,6 @@ export default function ContactPage() {
               />
             </div>
             <div>
-              <Label className="text-white mb-2 block">Subject</Label>
-              <Input
-                required
-                value={formData.subject}
-                onChange={(e) => setFormData({...formData, subject: e.target.value})}
-                className="bg-white/10 border-white/20 text-white"
-                placeholder="How can we help?"
-              />
-            </div>
-            <div>
               <Label className="text-white mb-2 block">Message</Label>
               <textarea
                 required
@@ -78,8 +92,8 @@ export default function ContactPage() {
                 placeholder="Your message..."
               />
             </div>
-            <PrimaryButton type="submit" className="w-full">
-              Send Message
+            <PrimaryButton type="submit" className="w-full" disabled={loading}>
+              {loading ? "Sending..." : "Send Message"}
             </PrimaryButton>
           </form>
         </div>

@@ -2,10 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
+import { useCart } from "@/components/CartProvider";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { data: session, status } = useSession();
+  const { itemCount } = useCart();
 
   return (
     <header className="border-b border-white/20 bg-white/10 backdrop-blur-2xl sticky top-0 z-50">
@@ -40,53 +44,112 @@ export function Header() {
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">2</span>
+                {itemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                    {itemCount}
+                  </span>
+                )}
               </Button>
             </Link>
-            <Link href="/auth/login">
-              <Button variant="ghost" className="text-white hover:bg-white/10">Login</Button>
-            </Link>
-            <Link href="/auth/register">
-              <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg">
-                Sign Up
-              </Button>
-            </Link>
+            
+            {status === "loading" ? (
+              <div className="w-20 h-10 bg-white/10 rounded-lg animate-pulse"></div>
+            ) : session ? (
+              <>
+                <Link href="/profile">
+                  <Button variant="ghost" className="text-white hover:bg-white/10">
+                    {session.user?.name || "Profile"}
+                  </Button>
+                </Link>
+                <Button 
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  variant="ghost" 
+                  className="text-white hover:bg-white/10"
+                >
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link href="/auth/login">
+                  <Button variant="ghost" className="text-white hover:bg-white/10">Login</Button>
+                </Link>
+                <Link href="/auth/register">
+                  <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg">
+                    Sign Up
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden text-white p-2"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {mobileMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
+          {/* Mobile Menu Button & Cart */}
+          <div className="md:hidden flex items-center gap-2">
+            <Link href="/cart">
+              <Button variant="ghost" className="text-white hover:bg-white/10 relative p-2">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                {itemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                    {itemCount}
+                  </span>
+                )}
+              </Button>
+            </Link>
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="text-white p-2"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {mobileMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden mt-4 pb-4 space-y-3">
-            <Link href="/" className="block text-white/90 hover:text-white py-2">Home</Link>
-            <Link href="/bikes" className="block text-white/90 hover:text-white py-2">Bikes</Link>
-            <Link href="/parts" className="block text-white/90 hover:text-white py-2">Parts</Link>
-            <Link href="/about" className="block text-white/90 hover:text-white py-2">About</Link>
-            <Link href="/search" className="block text-white/90 hover:text-white py-2">Search</Link>
-            <Link href="/cart" className="block text-white/90 hover:text-white py-2">Cart (2)</Link>
-            <div className="flex flex-col gap-2 pt-2">
-              <Link href="/auth/login">
-                <Button variant="ghost" className="w-full text-white hover:bg-white/10">Login</Button>
-              </Link>
-              <Link href="/auth/register">
-                <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
-                  Sign Up
+            <Link href="/" onClick={() => setMobileMenuOpen(false)} className="block text-white/90 hover:text-white py-2">Home</Link>
+            <Link href="/bikes" onClick={() => setMobileMenuOpen(false)} className="block text-white/90 hover:text-white py-2">Bikes</Link>
+            <Link href="/parts" onClick={() => setMobileMenuOpen(false)} className="block text-white/90 hover:text-white py-2">Parts</Link>
+            <Link href="/about" onClick={() => setMobileMenuOpen(false)} className="block text-white/90 hover:text-white py-2">About</Link>
+            <Link href="/search" onClick={() => setMobileMenuOpen(false)} className="block text-white/90 hover:text-white py-2">Search</Link>
+            <Link href="/cart" onClick={() => setMobileMenuOpen(false)} className="block text-white/90 hover:text-white py-2">
+              Cart {itemCount > 0 && `(${itemCount})`}
+            </Link>
+            
+            {session ? (
+              <>
+                <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="block text-white/90 hover:text-white py-2">Profile</Link>
+                <Button 
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    signOut({ callbackUrl: "/" });
+                  }}
+                  variant="ghost" 
+                  className="w-full text-white hover:bg-white/10"
+                >
+                  Logout
                 </Button>
-              </Link>
-            </div>
+              </>
+            ) : (
+              <div className="flex flex-col gap-2 pt-2">
+                <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="ghost" className="w-full text-white hover:bg-white/10">Login</Button>
+                </Link>
+                <Link href="/auth/register" onClick={() => setMobileMenuOpen(false)}>
+                  <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
+                    Sign Up
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -19,7 +19,7 @@ export default function BikesPage() {
         <p className="text-white/70 text-lg">Select your bike model to find compatible parts</p>
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {bikes.map((bike) => (
           <Link key={bike.id} href={`/bikes/${bike.brand.toLowerCase()}/${bike.model.toLowerCase().replace(/\s+/g, '-')}`}>
             <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-6 hover:bg-white/20 transition-all cursor-pointer group hover:-translate-y-2">

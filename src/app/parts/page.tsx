@@ -1,15 +1,32 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { PartCard } from "@/components/PartCard";
 
-const parts = [
-  { id: 1, name: 'Engine Oil Filter', price: 450, marketPrice: 600, category: 'Engine', brand: 'Honda', stock: 25 },
-  { id: 2, name: 'Brake Pads (Front)', price: 1200, marketPrice: 1500, category: 'Brakes', brand: 'Yamaha', stock: 15 },
-  { id: 3, name: 'Chain Sprocket Kit', price: 2500, marketPrice: 3200, category: 'Drive', brand: 'Bajaj', stock: 10 },
-  { id: 4, name: 'Air Filter', price: 350, marketPrice: 500, category: 'Engine', brand: 'Hero', stock: 30 },
-  { id: 5, name: 'Spark Plug', price: 250, marketPrice: 350, category: 'Engine', brand: 'Honda', stock: 50 },
-  { id: 6, name: 'Clutch Plate Set', price: 1800, marketPrice: 2400, category: 'Transmission', brand: 'Yamaha', stock: 8 },
-];
-
 export default function PartsPage() {
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch("/api/products");
+        const data = await res.json();
+        setProducts(data);
+      } catch (error) {
+        console.error("Failed to fetch products");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  const categories = ["All", "Engine", "Brakes", "Electrical", "Transmission", "Suspension", "Body"];
+  const filteredParts = selectedCategory === "All" 
+    ? products 
+    : products.filter((p: any) => p.category === selectedCategory);
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="mb-8">
@@ -20,10 +37,15 @@ export default function PartsPage() {
       {/* Filters */}
       <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-6 mb-8">
         <div className="flex flex-wrap gap-3">
-          {['All', 'Engine', 'Brakes', 'Drive', 'Transmission'].map((cat) => (
+          {categories.map((cat) => (
             <button
               key={cat}
-              className="px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all"
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-4 py-2 rounded-xl border transition-all ${
+                selectedCategory === cat
+                  ? "bg-blue-600 border-blue-500 text-white"
+                  : "bg-white/10 border-white/20 text-white hover:bg-white/20"
+              }`}
             >
               {cat}
             </button>
@@ -31,10 +53,16 @@ export default function PartsPage() {
         </div>
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {parts.map((part) => (
-          <PartCard key={part.id} part={part} />
-        ))}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        {loading ? (
+          <p className="text-white col-span-full text-center py-12">Loading products...</p>
+        ) : filteredParts.length === 0 ? (
+          <p className="text-white col-span-full text-center py-12">No products found</p>
+        ) : (
+          filteredParts.map((part: any) => (
+            <PartCard key={part.id} part={part} />
+          ))
+        )}
       </div>
     </div>
   );

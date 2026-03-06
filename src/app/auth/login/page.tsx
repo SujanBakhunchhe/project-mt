@@ -2,22 +2,77 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({});
+
+  const validateForm = () => {
+    const newErrors: { email?: string; password?: string } = {};
+    
+    if (!email) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = "Invalid email format";
+    }
+    
+    if (!password) {
+      newErrors.password = "Password is required";
+    } else if (password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
+    
+    if (!validateForm()) return;
+    
     setLoading(true);
-    // TODO: Implement login logic
-    console.log({ email, password });
-    setLoading(false);
+
+    try {
+      const result = await signIn("credentials", {
+        email: email.toLowerCase().trim(),
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setErrors({ general: "Invalid email or password" });
+      } else {
+        if (rememberMe) {
+          localStorage.setItem("rememberMe", "true");
+        } else {
+          localStorage.removeItem("rememberMe");
+        }
+        // Mark session as active
+        sessionStorage.setItem("sessionActive", "true");
+        router.push("/");
+        router.refresh();
+      }
+    } catch (error) {
+      setErrors({ general: "Something went wrong. Please try again." });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    await signIn("google", { callbackUrl: "/" });
   };
 
   return (
@@ -53,10 +108,13 @@ export default function LoginPage() {
                 type="email"
                 placeholder="you@example.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="backdrop-blur-xl bg-white/20 border-white/30 text-white placeholder:text-white/50 focus:bg-white/30 transition-all"
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setErrors({ ...errors, email: undefined });
+                }}
+                className={`backdrop-blur-xl bg-white/20 border-white/30 text-white placeholder:text-white/50 focus:bg-white/30 transition-all ${errors.email ? 'border-red-500' : ''}`}
               />
+              {errors.email && <p className="text-red-300 text-sm">{errors.email}</p>}
             </div>
 
             <div className="space-y-2">
@@ -66,17 +124,35 @@ export default function LoginPage() {
                 type="password"
                 placeholder="••••••••"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="backdrop-blur-xl bg-white/20 border-white/30 text-white placeholder:text-white/50 focus:bg-white/30 transition-all"
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setErrors({ ...errors, password: undefined });
+                }}
+                className={`backdrop-blur-xl bg-white/20 border-white/30 text-white placeholder:text-white/50 focus:bg-white/30 transition-all ${errors.password ? 'border-red-500' : ''}`}
               />
+              {errors.password && <p className="text-red-300 text-sm">{errors.password}</p>}
             </div>
 
             <div className="flex items-center justify-between text-sm">
+              <label className="flex items-center gap-2 text-white/90 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded border-white/30 bg-white/20 text-blue-600 focus:ring-blue-500 focus:ring-offset-0"
+                />
+                Remember me
+              </label>
               <Link href="/auth/forgot-password" className="text-white/90 hover:text-white underline">
                 Forgot password?
               </Link>
             </div>
+
+            {errors.general && (
+              <div className="bg-red-500/20 border border-red-500/50 text-red-200 px-4 py-3 rounded-xl">
+                {errors.general}
+              </div>
+            )}
 
             <Button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-6 rounded-xl shadow-lg hover:shadow-xl transition-all" disabled={loading}>
               {loading ? "Signing in..." : "Sign In"}
@@ -91,7 +167,7 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <Button type="button" variant="outline" className="w-full backdrop-blur-xl bg-transparent border-white/30 text-white hover:bg-white/10 py-6 rounded-xl transition-all">
+            <Button type="button" onClick={handleGoogleSignIn} variant="outline" className="w-full backdrop-blur-xl bg-transparent border-white/30 text-white hover:bg-white/10 py-6 rounded-xl transition-all">
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>

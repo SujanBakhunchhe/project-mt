@@ -1,53 +1,138 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { PrimaryButton, WhiteButton } from "@/components/Buttons";
+import { useRouter } from "next/navigation";
+import { PrimaryButton } from "@/components/Buttons";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useCart } from "@/components/CartProvider";
+import { useToast } from "@/components/ToastProvider";
+import { useSession } from "next-auth/react";
 
 export default function CheckoutPage() {
+  const router = useRouter();
+  const { items, clearCart } = useCart();
+  const { showToast } = useToast();
+  const { data: session } = useSession();
+  const [loading, setLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [formData, setFormData] = useState({
+    name: session?.user?.name || "",
+    phone: "",
+    email: session?.user?.email || "",
+    address: "",
+    city: "",
+  });
 
-  const cartItems = [
-    { id: 1, name: 'Engine Oil Filter', price: 450, quantity: 2 },
-    { id: 2, name: 'Brake Pads (Front)', price: 1200, quantity: 1 },
-  ];
-
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shipping = 0;
+  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const shipping = subtotal > 3000 ? 0 : 150;
   const total = subtotal + shipping;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (items.length === 0) {
+      showToast("Your cart is empty", "error");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: items.map(item => ({
+            productId: item.id.toString(),
+            quantity: item.quantity,
+            price: item.price,
+          })),
+          shipping: formData,
+          payment: { method: paymentMethod },
+          total,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        showToast(data.error || "Order failed", "error");
+        return;
+      }
+
+      showToast("Order placed successfully!", "success");
+      clearCart();
+      router.push(`/order-confirmation?orderId=${data.order.orderNumber}`);
+    } catch (error) {
+      showToast("Failed to place order", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
       <h1 className="text-3xl md:text-5xl font-bold text-white mb-8">Checkout</h1>
 
-      <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
-        {/* Checkout Form */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Shipping Information */}
-          <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-6 md:p-8">
-            <h2 className="text-2xl font-bold text-white mb-6">Shipping Information</h2>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <Label className="text-white">Full Name</Label>
-                <Input className="bg-white/10 border-white/20 text-white" placeholder="Rajesh Kumar" />
-              </div>
-              <div>
-                <Label className="text-white">Phone Number</Label>
-                <Input className="bg-white/10 border-white/20 text-white" placeholder="+977 9841234567" />
-              </div>
-              <div className="md:col-span-2">
-                <Label className="text-white">Email</Label>
-                <Input className="bg-white/10 border-white/20 text-white" placeholder="rajesh@example.com" />
-              </div>
-              <div className="md:col-span-2">
-                <Label className="text-white">Address</Label>
-                <Input className="bg-white/10 border-white/20 text-white" placeholder="Street address" />
-              </div>
-              <div>
-                <Label className="text-white">City</Label>
-                <Input className="bg-white/10 border-white/20 text-white" placeholder="Kathmandu" />
+      <form onSubmit={handleSubmit}>
+        <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
+          {/* Checkout Form */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Shipping Information */}
+            <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-6 md:p-8">
+              <h2 className="text-2xl font-bold text-white mb-6">Shipping Information</h2>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-white">Full Name</Label>
+                  <Input 
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    className="bg-white/10 border-white/20 text-white" 
+                    placeholder="Rajesh Kumar" 
+                  />
+                </div>
+                <div>
+                  <Label className="text-white">Phone Number</Label>
+                  <Input 
+                    required
+                    value={formData.phone}
+                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    className="bg-white/10 border-white/20 text-white" 
+                    placeholder="+977 9841234567" 
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <Label className="text-white">Email</Label>
+                  <Input 
+                    required
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    className="bg-white/10 border-white/20 text-white" 
+                    placeholder="rajesh@example.com" 
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <Label className="text-white">Address</Label>
+                  <Input 
+                    required
+                    value={formData.address}
+                    onChange={(e) => setFormData({...formData, address: e.target.value})}
+                    className="bg-white/10 border-white/20 text-white" 
+                    placeholder="Street address" 
+                  />
+                </div>
+                <div>
+                  <Label className="text-white">City</Label>
+                  <Input 
+                    required
+                    value={formData.city}
+                    onChange={(e) => setFormData({...formData, city: e.target.value})}
+                    className="bg-white/10 border-white/20 text-white" 
+                    placeholder="Kathmandu" 
+                  />
               </div>
               <div>
                 <Label className="text-white">Postal Code</Label>
@@ -114,7 +199,7 @@ export default function CheckoutPage() {
             <h2 className="text-2xl font-bold text-white mb-6">Order Summary</h2>
             
             <div className="space-y-4 mb-6">
-              {cartItems.map((item) => (
+              {items.map((item) => (
                 <div key={item.id} className="flex justify-between text-white/80">
                   <span>{item.name} x{item.quantity}</span>
                   <span>NPR {item.price * item.quantity}</span>
@@ -139,15 +224,12 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            <PrimaryButton className="w-full mb-3">
-              Place Order
+            <PrimaryButton type="submit" className="w-full mb-3" disabled={loading || items.length === 0}>
+              {loading ? "Processing..." : "Place Order"}
             </PrimaryButton>
-            <Link href="/cart">
-              <WhiteButton className="w-full">
-                Back to Cart
-              </WhiteButton>
-            </Link>
           </div>
+        </div>
+      </form>
         </div>
       </div>
     </div>

@@ -1,28 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { PrimaryButton, WhiteButton } from "@/components/Buttons";
+import { useCart } from "@/components/CartProvider";
 
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState([
-    { id: 1, name: 'Engine Oil Filter', price: 450, marketPrice: 600, quantity: 2, image: '🔧' },
-    { id: 2, name: 'Brake Pads (Front)', price: 1200, marketPrice: 1500, quantity: 1, image: '🔧' },
-  ]);
+  const { items, updateQuantity, removeItem } = useCart();
 
-  const updateQuantity = (id: number, change: number) => {
-    setCartItems(items =>
-      items.map(item =>
-        item.id === id ? { ...item, quantity: Math.max(1, item.quantity + change) } : item
-      )
-    );
-  };
-
-  const removeItem = (id: number) => {
-    setCartItems(items => items.filter(item => item.id !== id));
-  };
-
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const shipping = subtotal > 3000 ? 0 : 150;
   const total = subtotal + shipping;
 
@@ -30,7 +15,7 @@ export default function CartPage() {
     <div className="container mx-auto px-4 py-8 md:py-12">
       <h1 className="text-3xl md:text-5xl font-bold text-white mb-6 md:mb-8">Shopping Cart</h1>
 
-      {cartItems.length === 0 ? (
+      {items.length === 0 ? (
         <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-8 md:p-12 text-center">
           <p className="text-white/70 text-lg md:text-xl mb-6">Your cart is empty</p>
           <Link href="/parts">
@@ -42,11 +27,11 @@ export default function CartPage() {
       ) : (
         <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
           <div className="lg:col-span-2 space-y-4">
-            {cartItems.map((item) => (
+            {items.map((item) => (
               <div key={item.id} className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-4 md:p-6">
                 <div className="flex flex-col sm:flex-row gap-4 md:gap-6">
                   <div className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-blue-600/20 to-indigo-600/20 rounded-xl flex items-center justify-center flex-shrink-0 mx-auto sm:mx-0">
-                    <span className="text-3xl md:text-4xl">{item.image}</span>
+                    <span className="text-3xl md:text-4xl">🔧</span>
                   </div>
                   <div className="flex-1 text-center sm:text-left">
                     <h3 className="text-lg md:text-xl font-bold text-white mb-2">{item.name}</h3>
@@ -57,14 +42,14 @@ export default function CartPage() {
                     <div className="flex flex-col sm:flex-row items-center gap-4">
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => updateQuantity(item.id, -1)}
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
                           className="w-8 h-8 bg-white/10 border border-white/20 rounded-lg text-white hover:bg-white/20"
                         >
                           -
                         </button>
                         <span className="text-white w-8 text-center">{item.quantity}</span>
                         <button
-                          onClick={() => updateQuantity(item.id, 1)}
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
                           className="w-8 h-8 bg-white/10 border border-white/20 rounded-lg text-white hover:bg-white/20"
                         >
                           +

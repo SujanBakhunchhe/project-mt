@@ -1,25 +1,35 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { useState, useEffect } from "react";
 import { PartCard } from "@/components/PartCard";
 
 export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const allParts = [
-    { id: 1, name: 'Engine Oil Filter', price: 450, marketPrice: 600, category: 'Engine', brand: 'Honda', stock: 25 },
-    { id: 2, name: 'Brake Pads (Front)', price: 1200, marketPrice: 1500, category: 'Brakes', brand: 'Yamaha', stock: 15 },
-    { id: 3, name: 'Chain Sprocket Kit', price: 2500, marketPrice: 3200, category: 'Drive', brand: 'Bajaj', stock: 10 },
-    { id: 4, name: 'Air Filter', price: 350, marketPrice: 500, category: 'Engine', brand: 'Hero', stock: 30 },
-    { id: 5, name: 'Spark Plug', price: 250, marketPrice: 350, category: 'Engine', brand: 'Honda', stock: 50 },
-  ];
+  useEffect(() => {
+    const fetchProducts = async () => {
+      if (!searchQuery.trim()) {
+        setProducts([]);
+        return;
+      }
 
-  const filteredParts = allParts.filter(part =>
-    part.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    part.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    part.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/products?search=${encodeURIComponent(searchQuery)}`);
+        const data = await res.json();
+        setProducts(data);
+      } catch (error) {
+        console.error("Search failed");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const debounce = setTimeout(fetchProducts, 300);
+    return () => clearTimeout(debounce);
+  }, [searchQuery]);
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -45,31 +55,26 @@ export default function SearchPage() {
       {searchQuery ? (
         <>
           <p className="text-white/70 mb-6">
-            Found {filteredParts.length} result{filteredParts.length !== 1 ? 's' : ''} for "{searchQuery}"
+            {loading ? "Searching..." : `Found ${products.length} result${products.length !== 1 ? 's' : ''} for "${searchQuery}"`}
           </p>
-          {filteredParts.length > 0 ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredParts.map((part) => (
+          {products.length > 0 ? (
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+              {products.map((part: any) => (
                 <PartCard key={part.id} part={part} />
               ))}
             </div>
-          ) : (
+          ) : !loading ? (
             <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-12 text-center">
-              <p className="text-white/70 text-lg mb-4">No products found</p>
-              <Link href="/parts" className="text-blue-400 hover:text-blue-300">
-                Browse all parts →
-              </Link>
+              <p className="text-white/70 text-lg">No products found for "{searchQuery}"</p>
             </div>
-          )}
+          ) : null}
         </>
       ) : (
         <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-12 text-center">
-          <svg className="w-16 h-16 text-white/30 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <p className="text-white/70 text-lg">Start typing to search for products</p>
+          <p className="text-white/70 text-lg">Start typing to search for products...</p>
         </div>
       )}
     </div>
   );
 }
+

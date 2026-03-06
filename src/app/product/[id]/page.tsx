@@ -2,41 +2,64 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useCart } from "@/components/CartProvider";
+import { useToast } from "@/components/ToastProvider";
+import { ProductReviews } from "@/components/ProductReviews";
 
-export default function ProductDetailPage() {
+export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [product, setProduct] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const { addItem } = useCart();
+  const { showToast } = useToast();
+  const [productId, setProductId] = useState<string>("");
 
-  const product = {
-    id: 1,
-    name: 'Engine Oil Filter',
-    price: 450,
-    marketPrice: 600,
-    brand: 'Honda',
-    category: 'Engine',
-    stock: 25,
-    description: 'High-quality engine oil filter designed for Honda motorcycles. Ensures optimal engine performance and longevity by filtering out contaminants and debris.',
-    features: [
-      'Premium quality filtration',
-      'OEM compatible',
-      'Easy installation',
-      'Long-lasting durability',
-      'Fits multiple Honda models'
-    ],
-    specifications: {
-      'Brand': 'Honda',
-      'Part Number': 'HON-OF-001',
-      'Material': 'High-grade filter paper',
-      'Compatibility': 'Honda CB Shine, Hornet 2.0',
-      'Warranty': '6 months'
-    },
-    images: ['🔧', '🔧', '🔧']
-  };
+  useEffect(() => {
+    params.then(p => setProductId(p.id));
+  }, [params]);
+
+  useEffect(() => {
+    if (!productId) return;
+    
+    const fetchProduct = async () => {
+      try {
+        const res = await fetch(`/api/products/${productId}`);
+        const data = await res.json();
+        setProduct(data);
+      } catch (error) {
+        console.error("Failed to fetch product");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [productId]);
 
   const handleAddToCart = () => {
-    alert(`Added ${quantity}x ${product.name} to cart!`);
+    if (!product) return;
+    for (let i = 0; i < quantity; i++) {
+      addItem({ id: typeof product.id === 'string' ? parseInt(product.id.slice(-3)) : product.id, name: product.name, price: product.price });
+    }
+    showToast(`Added ${quantity}x ${product.name} to cart!`, "success");
   };
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <p className="text-white text-xl">Loading...</p>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <p className="text-white text-xl">Product not found</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -54,11 +77,11 @@ export default function ProductDetailPage() {
         <div>
           <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-8 md:p-12 mb-4">
             <div className="aspect-square bg-gradient-to-br from-blue-600/20 to-indigo-600/20 rounded-xl flex items-center justify-center">
-              <span className="text-7xl md:text-9xl">{product.images[selectedImage]}</span>
+              <span className="text-7xl md:text-9xl">🔧</span>
             </div>
           </div>
           <div className="grid grid-cols-3 gap-3 md:gap-4">
-            {product.images.map((img, i) => (
+            {product.images && product.images.length > 0 && product.images.map((img: string, i: number) => (
               <button
                 key={i}
                 onClick={() => setSelectedImage(i)}
@@ -131,7 +154,7 @@ export default function ProductDetailPage() {
         <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-6 md:p-8">
           <h2 className="text-xl md:text-2xl font-bold text-white mb-4 md:mb-6">Features</h2>
           <ul className="space-y-3">
-            {product.features.map((feature, i) => (
+            {product.features && product.features.map((feature: string, i: number) => (
               <li key={i} className="flex items-start gap-3 text-white/80 text-sm md:text-base">
                 <svg className="w-5 h-5 md:w-6 md:h-6 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -145,7 +168,7 @@ export default function ProductDetailPage() {
         <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-6 md:p-8">
           <h2 className="text-xl md:text-2xl font-bold text-white mb-4 md:mb-6">Specifications</h2>
           <dl className="space-y-3">
-            {Object.entries(product.specifications).map(([key, value]) => (
+            {product.specifications && Object.entries(product.specifications).map(([key, value]) => (
               <div key={key} className="flex justify-between border-b border-white/10 pb-3 text-sm md:text-base">
                 <dt className="text-white/70">{key}</dt>
                 <dd className="text-white font-medium text-right">{value}</dd>
@@ -154,6 +177,9 @@ export default function ProductDetailPage() {
           </dl>
         </div>
       </div>
+
+      {/* Reviews Section */}
+      <ProductReviews productId={productId} />
     </div>
   );
 }

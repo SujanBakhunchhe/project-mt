@@ -1,9 +1,16 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { PrimaryButton, WhiteButton } from "@/components/Buttons";
 
 export default function OrderConfirmationPage() {
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get("orderId");
+  const [orderNumber] = useState(orderId || "ORD-12345");
   const order = {
-    id: "ORD-12345",
+    id: orderNumber,
     date: "March 6, 2026",
     total: 2100,
     items: [
