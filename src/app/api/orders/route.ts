@@ -20,6 +20,10 @@ export async function POST(req: Request) {
     // Generate order number
     const orderNumber = `ORD-${Date.now().toString().slice(-8)}`
 
+    // Calculate subtotal and shipping
+    const subtotal = items.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0)
+    const shippingCost = subtotal > 3000 ? 0 : 150
+
     // Create order with items
     const order = await prisma.order.create({
       data: {
@@ -27,11 +31,11 @@ export async function POST(req: Request) {
         userId: session.user.id,
         total,
         subtotal,
-        shipping: total - subtotal,
+        shipping: shippingCost,
         status: "Processing",
         paymentMethod: payment.method,
         shippingAddress: shipping,
-        orderItems: {
+        items: {
           create: items.map((item: any) => ({
             productId: item.productId,
             quantity: item.quantity,
@@ -40,7 +44,7 @@ export async function POST(req: Request) {
         },
       },
       include: {
-        orderItems: {
+        items: {
           include: {
             product: true,
           },
@@ -52,7 +56,7 @@ export async function POST(req: Request) {
     await sendOrderConfirmationEmail(shipping.email, {
       orderNumber,
       total,
-      items: order.orderItems.map(item => ({
+      items: order.items.map(item => ({
         name: item.product.name,
         quantity: item.quantity,
         price: item.price,
@@ -77,7 +81,7 @@ export async function GET(req: Request) {
     const orders = await prisma.order.findMany({
       where: { userId: session.user.id },
       include: {
-        orderItems: {
+        items: {
           include: {
             product: true,
           },
