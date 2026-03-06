@@ -2,11 +2,11 @@ import Link from "next/link";
 import { PartCard } from "@/components/PartCard";
 
 const parts = [
-  { id: 1, name: 'Engine Oil Filter', price: 450, marketPrice: 600, category: 'Engine' },
-  { id: 2, name: 'Brake Pads (Front)', price: 1200, marketPrice: 1500, category: 'Brakes' },
-  { id: 3, name: 'Chain Sprocket Kit', price: 2500, marketPrice: 3200, category: 'Drive' },
-  { id: 4, name: 'Air Filter', price: 350, marketPrice: 500, category: 'Engine' },
-  { id: 5, name: 'Spark Plug', price: 250, marketPrice: 350, category: 'Engine' },
+  { id: '1', name: 'Engine Oil Filter', price: 450, marketPrice: 600, category: 'Engine' },
+  { id: '2', name: 'Brake Pads (Front)', price: 1200, marketPrice: 1500, category: 'Brakes' },
+  { id: '3', name: 'Chain Sprocket Kit', price: 2500, marketPrice: 3200, category: 'Drive' },
+  { id: '4', name: 'Air Filter', price: 350, marketPrice: 500, category: 'Engine' },
+  { id: '5', name: 'Spark Plug', price: 250, marketPrice: 350, category: 'Engine' },
 ];
 
 export default async function BikePartsPage({ params }: { params: Promise<{ brand: string; model: string }> }) {
