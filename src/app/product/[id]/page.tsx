@@ -171,7 +171,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             {product.specifications && Object.entries(product.specifications).map(([key, value]) => (
               <div key={key} className="flex justify-between border-b border-white/10 pb-3 text-sm md:text-base">
                 <dt className="text-white/70">{key}</dt>
-                <dd className="text-white font-medium text-right">{value}</dd>
+                <dd className="text-white font-medium text-right">{String(value)}</dd>
               </div>
             ))}
           </dl>

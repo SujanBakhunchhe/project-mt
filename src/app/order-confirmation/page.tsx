@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { PrimaryButton, WhiteButton } from "@/components/Buttons";
 
-export default function OrderConfirmationPage() {
+function OrderConfirmationContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
   const [orderNumber] = useState(orderId || "ORD-12345");
@@ -83,3 +83,16 @@ export default function OrderConfirmationPage() {
     </div>
   );
 }
+
+export default function OrderConfirmationPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto px-4 py-12 text-center">
+        <p className="text-white text-xl">Loading...</p>
+      </div>
+    }>
+      <OrderConfirmationContent />
+    </Suspense>
+  );
+}
+

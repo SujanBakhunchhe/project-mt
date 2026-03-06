@@ -36,7 +36,6 @@ export default function CartPage() {
                   <div className="flex-1 text-center sm:text-left">
                     <h3 className="text-lg md:text-xl font-bold text-white mb-2">{item.name}</h3>
                     <div className="flex items-center justify-center sm:justify-start gap-3 mb-3">
-                      <span className="text-white/60 text-sm line-through">NPR {item.marketPrice}</span>
                       <span className="text-xl md:text-2xl font-bold text-white">NPR {item.price}</span>
                     </div>
                     <div className="flex flex-col sm:flex-row items-center gap-4">
