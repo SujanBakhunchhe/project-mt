@@ -11,7 +11,10 @@ export async function sendOrderConfirmationEmail(
   }
 ) {
   try {
-    await resend.emails.send({
+    console.log('Sending order confirmation email to:', to);
+    console.log('Order data:', orderData);
+    
+    const result = await resend.emails.send({
       from: 'BikeParts Nepal <onboarding@resend.dev>',
       to,
       subject: `Order Confirmation - ${orderData.orderNumber}`,
@@ -53,6 +56,13 @@ export async function sendOrderConfirmationEmail(
         </div>
       `,
     });
+    console.log('Email sent successfully:', result);
+    
+    if (result.error) {
+      console.error('Resend API error:', result.error);
+      return { success: false, error: result.error };
+    }
+    
     return { success: true };
   } catch (error) {
     console.error('Email send error:', error);

@@ -88,6 +88,67 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Featured Products */}
+        <section className="py-20 bg-white/5">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">Featured Products</h2>
+              <p className="text-white/70 text-lg">Top picks for your motorcycle</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                { name: 'Engine Oil Filter', price: 450, brand: 'Honda', image: '🔧' },
+                { name: 'Brake Pads (Front)', price: 1200, brand: 'Yamaha', image: '🛠️' },
+                { name: 'Chain Sprocket Kit', price: 2500, brand: 'Bajaj', image: '⚙️' },
+                { name: 'LED Headlight', price: 1800, brand: 'Hero', image: '💡' },
+              ].map((product, i) => (
+                <Link key={i} href="/parts" className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-6 hover:scale-105 transition-transform">
+                  <div className="aspect-square bg-gradient-to-br from-blue-600/20 to-indigo-600/20 rounded-xl flex items-center justify-center mb-4">
+                    <span className="text-6xl">{product.image}</span>
+                  </div>
+                  <h3 className="text-white font-bold text-lg mb-2">{product.name}</h3>
+                  <p className="text-white/60 text-sm mb-3">{product.brand}</p>
+                  <p className="text-white text-xl font-bold">NPR {product.price}</p>
+                </Link>
+              ))}
+            </div>
+            <div className="text-center mt-8">
+              <Link href="/parts">
+                <WhiteButton>View All Products →</WhiteButton>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Upcoming Products */}
+        <section className="py-20">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">Coming Soon</h2>
+              <p className="text-white/70 text-lg">Exciting new products arriving soon</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                { name: 'Performance Exhaust System', brand: 'Akrapovic', date: 'March 2026', image: '🔊' },
+                { name: 'Carbon Fiber Body Kit', brand: 'Premium', date: 'April 2026', image: '🏁' },
+                { name: 'Smart Helmet with HUD', brand: 'Tech', date: 'May 2026', image: '🪖' },
+              ].map((product, i) => (
+                <div key={i} className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-6 relative overflow-hidden">
+                  <div className="absolute top-4 right-4 bg-yellow-500 text-black text-xs font-bold px-3 py-1 rounded-full">
+                    Coming Soon
+                  </div>
+                  <div className="aspect-square bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-xl flex items-center justify-center mb-4">
+                    <span className="text-6xl">{product.image}</span>
+                  </div>
+                  <h3 className="text-white font-bold text-lg mb-2">{product.name}</h3>
+                  <p className="text-white/60 text-sm mb-2">{product.brand}</p>
+                  <p className="text-white/80 text-sm">Expected: {product.date}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Bike Brands */}
         <section className="py-20">
           <div className="container mx-auto px-4">

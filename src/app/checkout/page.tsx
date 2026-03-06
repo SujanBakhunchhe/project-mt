@@ -44,7 +44,7 @@ export default function CheckoutPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           items: items.map(item => ({
-            productId: item.id.toString(),
+            productId: item.id,
             quantity: item.quantity,
             price: item.price,
           })),
@@ -57,7 +57,13 @@ export default function CheckoutPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        showToast(data.error || "Order failed", "error");
+        if (data.clearCart) {
+          clearCart();
+          showToast("Cart data was invalid. Please add products again.", "error");
+          setTimeout(() => router.push("/parts"), 2000);
+        } else {
+          showToast(data.error || "Order failed", "error");
+        }
         return;
       }
 

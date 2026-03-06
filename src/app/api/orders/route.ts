@@ -17,6 +17,48 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 })
     }
 
+    // Fetch actual products to get valid ObjectIds
+    const productIds = items.map((item: any) => item.productId || item.id);
+    
+    // Filter only valid MongoDB ObjectIds (24 characters)
+    const validIds = productIds.filter((id: string) => typeof id === 'string' && id.length === 24);
+    
+    if (validIds.length === 0) {
+      return NextResponse.json({ 
+        error: "Invalid cart data. Please clear your cart and add products again.",
+        clearCart: true 
+      }, { status: 400 });
+    }
+    
+    const products = await prisma.product.findMany({
+      where: { id: { in: validIds } }
+    });
+
+    // Map cart items to order items with valid ObjectIds
+    const validItems = items
+      .filter((item: any) => {
+        const id = item.productId || item.id;
+        return typeof id === 'string' && id.length === 24;
+      })
+      .map((item: any) => {
+        const product = products.find(p => p.id === (item.productId || item.id));
+        if (!product) {
+          throw new Error(`Product not found in database`);
+        }
+        return {
+          productId: product.id,
+          quantity: item.quantity,
+          price: item.price,
+        };
+      });
+
+    if (validItems.length === 0) {
+      return NextResponse.json({ 
+        error: "No valid products in cart. Please add products again.",
+        clearCart: true 
+      }, { status: 400 });
+    }
+
     // Generate order number
     const orderNumber = `ORD-${Date.now().toString().slice(-8)}`
 
@@ -36,11 +78,7 @@ export async function POST(req: Request) {
         paymentMethod: payment.method,
         shippingAddress: shipping,
         items: {
-          create: items.map((item: any) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            price: item.price,
-          })),
+          create: validItems,
         },
       },
       include: {
@@ -52,8 +90,10 @@ export async function POST(req: Request) {
       },
     })
 
-    // Send order confirmation email
-    await sendOrderConfirmationEmail(shipping.email, {
+    // Send order confirmation email (to verified email in development)
+    const emailTo = process.env.NODE_ENV === 'production' ? shipping.email : 'sujanbakhunchhe950@gmail.com';
+    console.log('Sending order email to:', emailTo, 'Environment:', process.env.NODE_ENV);
+    const emailResult = await sendOrderConfirmationEmail(emailTo, {
       orderNumber,
       total,
       items: order.items.map(item => ({
@@ -63,10 +103,17 @@ export async function POST(req: Request) {
       })),
     })
 
+    if (!emailResult.success) {
+      console.error("Failed to send order confirmation email:", emailResult.error);
+    }
+
     return NextResponse.json({ order }, { status: 201 })
   } catch (error) {
     console.error("Order creation error:", error)
-    return NextResponse.json({ error: "Failed to create order" }, { status: 500 })
+    return NextResponse.json({ 
+      error: "Failed to create order",
+      details: error instanceof Error ? error.message : "Unknown error"
+    }, { status: 500 })
   }
 }
 

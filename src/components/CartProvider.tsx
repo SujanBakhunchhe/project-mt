@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 
 interface CartItem {
-  id: number;
+  id: string;
   name: string;
   price: number;
   quantity: number;
@@ -13,8 +13,8 @@ interface CartContextType {
   items: CartItem[];
   itemCount: number;
   addItem: (item: Omit<CartItem, "quantity">) => void;
-  removeItem: (id: number) => void;
-  updateQuantity: (id: number, quantity: number) => void;
+  removeItem: (id: string) => void;
+  updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
 }
 
@@ -26,7 +26,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // Load cart from localStorage
   useEffect(() => {
     const saved = localStorage.getItem("cart");
-    if (saved) setItems(JSON.parse(saved));
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Migrate old integer IDs to string IDs
+        const migrated = parsed.map((item: any) => ({
+          ...item,
+          id: typeof item.id === 'number' ? String(item.id) : item.id
+        }));
+        setItems(migrated);
+        localStorage.setItem("cart", JSON.stringify(migrated));
+      } catch (e) {
+        setItems([]);
+      }
+    }
   }, []);
 
   // Save cart to localStorage
@@ -48,11 +61,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const removeItem = (id: number) => {
+  const removeItem = (id: string) => {
     setItems((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const updateQuantity = (id: number, quantity: number) => {
+  const updateQuantity = (id: string, quantity: number) => {
     if (quantity <= 0) {
       removeItem(id);
       return;

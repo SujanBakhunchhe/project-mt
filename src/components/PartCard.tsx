@@ -24,7 +24,7 @@ export function PartCard({ part }: { part: Part }) {
   const [inWishlist, setInWishlist] = useState(false);
 
   const handleAddToCart = () => {
-    addItem({ id: typeof part.id === 'string' ? parseInt(part.id.slice(-3)) : part.id, name: part.name, price: part.price });
+    addItem({ id: part.id, name: part.name, price: part.price });
     showToast(`${part.name} added to cart!`, "success");
   };
 
