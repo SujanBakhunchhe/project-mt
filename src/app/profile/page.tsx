@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import Image from "next/image";
+import { CldUploadWidget } from "next-cloudinary";
 import { PrimaryButton, WhiteButton, OutlineButton } from "@/components/Buttons";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +21,7 @@ export default function ProfilePage() {
     email: "",
     phone: "",
     address: "",
+    image: "",
   });
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
@@ -39,6 +42,7 @@ export default function ProfilePage() {
             email: data.email || "",
             phone: data.phone || "",
             address: data.address || "",
+            image: data.image || "",
           });
         }
       } catch (error) {
@@ -180,6 +184,35 @@ export default function ProfilePage() {
             <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-6 md:p-8">
               <h2 className="text-2xl font-bold text-white mb-6">Edit Profile</h2>
               <div className="space-y-4">
+                <div>
+                  <Label className="text-white">Profile Picture</Label>
+                  <div className="flex items-center gap-4 mt-2">
+                    {profile.image ? (
+                      <Image src={profile.image} alt="Profile" width={80} height={80} className="rounded-full object-cover" />
+                    ) : (
+                      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold">
+                        {profile.name?.charAt(0)?.toUpperCase() || "U"}
+                      </div>
+                    )}
+                    <CldUploadWidget
+                      uploadPreset="bikeparts"
+                      onSuccess={(result: any) => {
+                        setProfile({...profile, image: result.info.secure_url});
+                        showToast("Image uploaded!", "success");
+                      }}
+                    >
+                      {({ open }) => (
+                        <button
+                          type="button"
+                          onClick={() => open()}
+                          className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors"
+                        >
+                          Upload Photo
+                        </button>
+                      )}
+                    </CldUploadWidget>
+                  </div>
+                </div>
                 <div>
                   <Label className="text-white">Name</Label>
                   <Input 

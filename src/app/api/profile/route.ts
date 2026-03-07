@@ -43,7 +43,7 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { name, email, phone, address, currentPassword, newPassword } = await req.json()
+    const { name, email, phone, address, image, currentPassword, newPassword } = await req.json()
 
     // Validation
     if (!name || !email) {
@@ -107,6 +107,7 @@ export async function PUT(req: Request) {
           email: email.toLowerCase().trim(),
           phone: phone?.trim() || null,
           address: address?.trim() || null,
+          image: image || null,
           password: hashedPassword
         }
       })
@@ -119,6 +120,7 @@ export async function PUT(req: Request) {
           email: email.toLowerCase().trim(),
           phone: phone?.trim() || null,
           address: address?.trim() || null,
+          image: image || null,
         }
       })
     }
