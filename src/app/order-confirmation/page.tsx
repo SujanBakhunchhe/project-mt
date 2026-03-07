@@ -125,16 +125,11 @@ function OrderConfirmationContent() {
             <p>Email: {order.shippingAddress?.email}</p>
           </div>
         </div>
-            <p className="font-semibold text-white">{order.shipping.name}</p>
-            <p>{order.shipping.address}</p>
-            <p>{order.shipping.phone}</p>
-          </div>
-        </div>
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-4">
-          <Link href="/profile" className="flex-1">
-            <PrimaryButton className="w-full">View Orders</PrimaryButton>
+          <Link href="/orders" className="flex-1">
+            <PrimaryButton className="w-full">View All Orders</PrimaryButton>
           </Link>
           <Link href="/" className="flex-1">
             <WhiteButton className="w-full">Continue Shopping</WhiteButton>
