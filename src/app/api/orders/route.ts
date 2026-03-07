@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { sendOrderConfirmationEmail } from "@/lib/email"
+import { orderRateLimit, checkRateLimit } from "@/lib/rateLimit"
 
 export async function POST(req: Request) {
   try {
@@ -9,6 +10,22 @@ export async function POST(req: Request) {
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    // Rate limiting per user
+    const rateLimitResult = await checkRateLimit(orderRateLimit, session.user.id);
+    
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { error: "Too many orders. Please wait before placing another order." },
+        { 
+          status: 429,
+          headers: {
+            "X-RateLimit-Limit": rateLimitResult.limit.toString(),
+            "X-RateLimit-Remaining": rateLimitResult.remaining.toString(),
+          }
+        }
+      )
     }
 
     const { items, shipping, payment, total } = await req.json()
