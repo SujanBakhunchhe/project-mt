@@ -31,7 +31,7 @@ export function PartCard({ part }: { part: Part }) {
   const descriptionText =
     part.description?.trim() || metaLabel || "Genuine replacement part for daily riding.";
   const stockLabel =
-    part.stock === undefined
+    part.stock === undefined || part.stock === null
       ? null
       : part.stock === 0
         ? "Out of stock"
@@ -154,9 +154,9 @@ export function PartCard({ part }: { part: Part }) {
           <PrimaryButton
             className="h-8 flex-1 rounded-full px-3 text-[10px] font-bold uppercase tracking-[0.1em] shadow-none hover:scale-100 sm:h-10 sm:px-4 sm:text-xs sm:tracking-[0.12em]"
             onClick={handleAddToCart}
-            disabled={part.stock === 0}
+            disabled={part.stock === 0 || part.stock === null}
           >
-            {part.stock === 0 ? "Out of Stock" : "Add to Cart"}
+            {part.stock === 0 || part.stock === null ? "Out of Stock" : "Add to Cart"}
           </PrimaryButton>
         </div>
       </div>
