@@ -39,18 +39,24 @@ export default function BrandModelsPage() {
         {models.length === 0 ? (
           <p className="text-white/60 text-center py-12">No models available yet.</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {models.map((model) => (
               <Link
                 key={model.id}
                 href={`/bikes/${brand}/${model.name.toLowerCase().replace(/\s+/g, "-")}`}
-                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all"
+                className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-xl overflow-hidden hover:bg-white/15 hover:border-white/30 transition-all hover:shadow-xl hover:shadow-blue-500/10"
               >
-                {model.image && (
-                  <Image src={model.image} alt={model.name} width={300} height={200} className="w-full h-48 object-cover rounded-lg mb-4" />
-                )}
-                <h3 className="text-xl font-bold text-white mb-2">{model.name}</h3>
-                <p className="text-blue-400">View Parts →</p>
+                <div className="aspect-video bg-gradient-to-br from-blue-600/20 to-indigo-600/20 flex items-center justify-center overflow-hidden">
+                  {model.image ? (
+                    <Image src={model.image} alt={model.name} width={300} height={200} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-4xl">🏍️</span>
+                  )}
+                </div>
+                <div className="p-4">
+                  <h3 className="text-base font-bold text-white mb-1">{model.name}</h3>
+                  <p className="text-xs text-blue-400">View Parts →</p>
+                </div>
               </Link>
             ))}
           </div>

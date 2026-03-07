@@ -4,6 +4,7 @@ import crypto from "crypto"
 import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY || 'dummy-key-for-build');
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'BikeParts Nepal <onboarding@resend.dev>';
 
 export async function POST(req: Request) {
   try {
@@ -39,7 +40,7 @@ export async function POST(req: Request) {
     // Try to send email
     try {
       await resend.emails.send({
-        from: 'BikeParts Nepal <onboarding@resend.dev>',
+        from: FROM_EMAIL,
         to: user.email,
         subject: 'Reset Your Password',
         html: `

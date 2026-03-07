@@ -59,7 +59,7 @@ export default function PartsPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
         {loading ? (
           <p className="text-white col-span-full text-center py-12">Loading products...</p>
         ) : filteredParts.length === 0 ? (

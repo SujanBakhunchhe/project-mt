@@ -1,6 +1,7 @@
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 'dummy-key-for-build');
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'BikeParts Nepal <onboarding@resend.dev>';
 
 export async function sendOrderConfirmationEmail(
   to: string,
@@ -16,7 +17,7 @@ export async function sendOrderConfirmationEmail(
     console.log('Order data:', orderData);
     
     const result = await resend.emails.send({
-      from: 'BikeParts Nepal <onboarding@resend.dev>',
+      from: FROM_EMAIL,
       to,
       subject: `Order Confirmation - ${orderData.orderNumber}`,
       html: `
@@ -79,7 +80,7 @@ export async function sendPasswordResetEmail(to: string, resetToken: string) {
   
   try {
     await resend.emails.send({
-      from: 'BikeParts Nepal <onboarding@resend.dev>',
+      from: FROM_EMAIL,
       to,
       subject: 'Reset Your Password',
       html: `
@@ -117,7 +118,7 @@ export async function sendContactEmail(data: {
 }) {
   try {
     await resend.emails.send({
-      from: 'BikeParts Nepal <onboarding@resend.dev>',
+      from: FROM_EMAIL,
       to: 'support@bikepartsnepal.com', // Your business email
       replyTo: data.email,
       subject: `New Contact Form Message from ${data.name}`,
@@ -184,7 +185,7 @@ export async function sendOrderStatusEmail(
     const statusInfo = statusMessages[status] || statusMessages.Processing;
 
     await resend.emails.send({
-      from: 'BikeParts Nepal <onboarding@resend.dev>',
+      from: FROM_EMAIL,
       to,
       subject: `${statusInfo.subject} - Order #${orderId.slice(-8)}`,
       html: `

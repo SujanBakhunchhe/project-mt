@@ -14,10 +14,17 @@ function OrdersContent() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const error = searchParams.get('error');
+    
     if (searchParams.get('success')) {
       showToast("Payment successful! Order confirmed.", "success");
-    }
-    if (searchParams.get('error')) {
+    } else if (error === 'payment-failed') {
+      showToast("Payment was cancelled. Your order is saved with pending payment.", "error");
+    } else if (error === 'failed') {
+      showToast("Payment failed. Please try again from your orders.", "error");
+    } else if (error === 'verification') {
+      showToast("Payment verification failed. Contact support if amount was deducted.", "error");
+    } else if (error) {
       showToast("Payment failed. Please try again.", "error");
     }
   }, [searchParams, showToast]);
@@ -83,7 +90,7 @@ function OrdersContent() {
                 </div>
                 <div className="text-left md:text-right">
                   <p className="text-white font-bold text-xl">Rs. {order.total.toFixed(2)}</p>
-                  <div className="flex gap-2 mt-2">
+                  <div className="flex flex-wrap gap-2 mt-2 justify-start md:justify-end">
                     <span className={`text-xs px-3 py-1 rounded-full ${
                       order.paymentStatus === 'paid' 
                         ? 'bg-green-500/20 text-green-300'
@@ -100,6 +107,38 @@ function OrdersContent() {
                     }`}>
                       {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                     </span>
+                    {order.paymentStatus === 'pending' && order.paymentMethod === 'esewa' && (
+                      <button
+                        onClick={async () => {
+                          const res = await fetch('/api/esewa/initiate', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ orderId: order.id })
+                          });
+                          const data = await res.json();
+                          if (res.ok) {
+                            const form = document.createElement('form');
+                            form.method = 'POST';
+                            const esewaUrl = process.env.NODE_ENV === 'production'
+                              ? 'https://epay.esewa.com.np/api/epay/main/v2/form'
+                              : 'https://rc-epay.esewa.com.np/api/epay/main/v2/form';
+                            form.action = esewaUrl;
+                            Object.entries(data).forEach(([key, value]) => {
+                              const input = document.createElement('input');
+                              input.type = 'hidden';
+                              input.name = key;
+                              input.value = value as string;
+                              form.appendChild(input);
+                            });
+                            document.body.appendChild(form);
+                            form.submit();
+                          }
+                        }}
+                        className="text-xs px-3 py-1 rounded-full bg-blue-500 text-white hover:bg-blue-600"
+                      >
+                        Pay Now
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

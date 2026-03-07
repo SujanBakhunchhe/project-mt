@@ -81,7 +81,10 @@ export default function CheckoutPage() {
           // Create form and submit to eSewa
           const form = document.createElement('form');
           form.method = 'POST';
-          form.action = 'https://rc-epay.esewa.com.np/api/epay/main/v2/form';
+          const esewaUrl = process.env.NODE_ENV === 'production'
+            ? 'https://epay.esewa.com.np/api/epay/main/v2/form'
+            : 'https://rc-epay.esewa.com.np/api/epay/main/v2/form';
+          form.action = esewaUrl;
 
           Object.entries(esewaData).forEach(([key, value]) => {
             const input = document.createElement('input');

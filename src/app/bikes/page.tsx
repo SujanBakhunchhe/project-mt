@@ -25,15 +25,21 @@ export default function BikesPage() {
           <p className="text-white/60">No brands available yet</p>
         </div>
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {brands.map((brand) => (
             <Link key={brand.id} href={`/bikes/${brand.name.toLowerCase()}`}>
-              <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-8 text-center hover:bg-white/20 transition-all cursor-pointer group hover:-translate-y-2">
-                <div className="w-24 h-24 bg-white rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform shadow-lg p-3">
-                  <img src={brand.logo} alt={`${brand.name} logo`} className="w-full h-full object-contain" />
+              <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-xl overflow-hidden hover:bg-white/15 hover:border-white/30 transition-all cursor-pointer group hover:shadow-xl hover:shadow-blue-500/10">
+                <div className="aspect-square bg-white/5 flex items-center justify-center p-6 group-hover:bg-white/10 transition-all">
+                  {brand.logo ? (
+                    <img src={brand.logo} alt={`${brand.name} logo`} className="w-full h-full object-contain" />
+                  ) : (
+                    <span className="text-4xl">🏍️</span>
+                  )}
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">{brand.name}</h3>
-                <p className="text-sm text-white/60">View Parts →</p>
+                <div className="p-4 text-center">
+                  <h3 className="text-base font-bold text-white mb-1">{brand.name}</h3>
+                  <p className="text-xs text-white/50">View Models →</p>
+                </div>
               </div>
             </Link>
           ))}

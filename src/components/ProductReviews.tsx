@@ -58,51 +58,51 @@ export function ProductReviews({ productId }: { productId: string }) {
     : "0";
 
   return (
-    <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-6 md:p-8">
-      <h2 className="text-2xl font-bold text-white mb-4">Reviews ({reviews.length})</h2>
-      <div className="flex items-center gap-2 mb-6">
-        <span className="text-3xl font-bold text-white">{avgRating}</span>
+    <div>
+      <h2 className="text-xl font-bold text-white mb-3">Reviews ({reviews.length})</h2>
+      <div className="flex items-center gap-2 mb-4">
+        <span className="text-2xl font-bold text-white">{avgRating}</span>
         <div className="flex">
           {[1,2,3,4,5].map(i => (
-            <span key={i} className={`text-2xl ${i <= parseFloat(avgRating) ? 'text-yellow-400' : 'text-gray-600'}`}>★</span>
+            <span key={i} className={`text-xl ${i <= parseFloat(avgRating) ? 'text-yellow-400' : 'text-gray-600'}`}>★</span>
           ))}
         </div>
       </div>
 
       {session && (
-        <div className="mb-6 p-4 bg-white/5 rounded-xl">
-          <h3 className="text-white font-bold mb-3">Write a Review</h3>
-          <div className="flex gap-2 mb-3">
+        <div className="mb-4 p-4 bg-white/5 rounded-lg">
+          <h3 className="text-white font-semibold mb-2 text-sm">Write a Review</h3>
+          <div className="flex gap-1 mb-2">
             {[1,2,3,4,5].map(i => (
-              <button key={i} onClick={() => setRating(i)} className={`text-3xl ${i <= rating ? 'text-yellow-400' : 'text-gray-600'}`}>★</button>
+              <button key={i} onClick={() => setRating(i)} className={`text-2xl ${i <= rating ? 'text-yellow-400' : 'text-gray-600'}`}>★</button>
             ))}
           </div>
           <textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             placeholder="Share your experience..."
-            className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white mb-3"
-            rows={3}
+            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm mb-2"
+            rows={2}
           />
-          <PrimaryButton onClick={submitReview} disabled={loading}>
+          <PrimaryButton onClick={submitReview} disabled={loading} className="text-sm py-2">
             {loading ? "Submitting..." : "Submit Review"}
           </PrimaryButton>
         </div>
       )}
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         {reviews.map((review) => (
-          <div key={review.id} className="p-4 bg-white/5 rounded-xl">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-white font-bold">{review.user.name}</span>
+          <div key={review.id} className="p-3 bg-white/5 rounded-lg">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-white font-semibold text-sm">{review.user.name}</span>
               <div className="flex">
                 {[1,2,3,4,5].map(i => (
-                  <span key={i} className={`${i <= review.rating ? 'text-yellow-400' : 'text-gray-600'}`}>★</span>
+                  <span key={i} className={`text-sm ${i <= review.rating ? 'text-yellow-400' : 'text-gray-600'}`}>★</span>
                 ))}
               </div>
             </div>
-            <p className="text-white/70">{review.comment}</p>
-            <p className="text-white/50 text-sm mt-2">{new Date(review.createdAt).toLocaleDateString()}</p>
+            <p className="text-white/70 text-sm">{review.comment}</p>
+            <p className="text-white/40 text-xs mt-1">{new Date(review.createdAt).toLocaleDateString()}</p>
           </div>
         ))}
       </div>

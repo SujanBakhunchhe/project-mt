@@ -45,10 +45,21 @@ export async function POST(req: Request) {
         if (!product) {
           throw new Error(`Product not found in database`);
         }
+        
+        // Validate quantity limits
+        if (item.quantity < 1 || item.quantity > 100) {
+          throw new Error(`Invalid quantity for ${product.name}. Must be between 1 and 100.`);
+        }
+        
+        // Check stock availability
+        if (product.stock < item.quantity) {
+          throw new Error(`${product.name} is out of stock. Only ${product.stock} available.`);
+        }
+        
         return {
           productId: product.id,
           quantity: item.quantity,
-          price: item.price,
+          price: product.price, // USE DATABASE PRICE, NOT FRONTEND
         };
       });
 
@@ -90,15 +101,26 @@ export async function POST(req: Request) {
       },
     })
 
-    // Send order confirmation email (to verified email in development)
-    const emailTo = process.env.NODE_ENV === 'production' ? shipping.email : 'sujanbakhunchhe950@gmail.com';
-    console.log('Sending order email to:', emailTo, 'Environment:', process.env.NODE_ENV);
+    // Reduce stock for each product
+    for (const item of validItems) {
+      await prisma.product.update({
+        where: { id: item.productId },
+        data: {
+          stock: {
+            decrement: item.quantity
+          }
+        }
+      });
+    }
+
+    // Send order confirmation email
+    console.log('Sending order email to:', shipping.email);
     
     const host = req.headers.get('host') || 'localhost:3000';
     const protocol = host.includes('localhost') ? 'http' : 'https';
     const baseUrl = `${protocol}://${host}`;
     
-    const emailResult = await sendOrderConfirmationEmail(emailTo, {
+    const emailResult = await sendOrderConfirmationEmail(shipping.email, {
       orderNumber,
       total,
       items: order.items.map(item => ({

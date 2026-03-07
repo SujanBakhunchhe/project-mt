@@ -57,6 +57,12 @@ export function Header() {
               <div className="w-20 h-10 bg-white/10 rounded-lg animate-pulse"></div>
             ) : session ? (
               <>
+                <Link href="/orders">
+                  <Button variant="ghost" className="text-white hover:bg-white/10">
+                    <span className="hidden md:inline">Orders</span>
+                    <span className="md:hidden">📦</span>
+                  </Button>
+                </Link>
                 <Link href="/profile">
                   <Button variant="ghost" className="text-white hover:bg-white/10 flex items-center gap-2">
                     {session.user?.image ? (
@@ -156,6 +162,10 @@ export function Header() {
             
             {session ? (
               <>
+                <Link href="/orders" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 text-white/90 hover:bg-white/10 hover:text-white py-3 px-4 rounded-lg transition-all">
+                  <span className="text-xl">📦</span>
+                  My Orders
+                </Link>
                 <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 text-white/90 hover:bg-white/10 hover:text-white py-3 px-4 rounded-lg transition-all">
                   {session.user?.image ? (
                     <img src={session.user.image} alt="Profile" className="w-6 h-6 rounded-full object-cover" />

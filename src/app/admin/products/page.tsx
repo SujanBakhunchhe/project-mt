@@ -344,6 +344,12 @@ export default function AdminProducts() {
                         {product.upcoming && (
                           <span className="bg-purple-500/20 text-purple-300 text-xs px-2 py-1 rounded">Upcoming</span>
                         )}
+                        {product.stock === 0 && (
+                          <span className="bg-red-500/20 text-red-300 text-xs px-2 py-1 rounded">Out of Stock</span>
+                        )}
+                        {product.stock > 0 && product.stock < 10 && (
+                          <span className="bg-orange-500/20 text-orange-300 text-xs px-2 py-1 rounded">Low Stock</span>
+                        )}
                       </div>
                       <p className="text-white/70 text-sm truncate">{product.brand} • {product.category}</p>
                     </div>
