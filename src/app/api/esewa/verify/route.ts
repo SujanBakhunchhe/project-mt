@@ -23,10 +23,8 @@ export async function GET(req: NextRequest) {
 
     const orderId = transaction_uuid.split('-')[0];
 
-    // Verify with eSewa status check API
-    const verifyUrl = process.env.NODE_ENV === 'production'
-      ? `https://esewa.com.np/api/epay/transaction/status/?product_code=${product_code}&total_amount=${total_amount}&transaction_uuid=${transaction_uuid}`
-      : `https://rc.esewa.com.np/api/epay/transaction/status/?product_code=${product_code}&total_amount=${total_amount}&transaction_uuid=${transaction_uuid}`;
+    // Verify with eSewa status check API (always use test URL for EPAYTEST)
+    const verifyUrl = `https://rc.esewa.com.np/api/epay/transaction/status/?product_code=${product_code}&total_amount=${total_amount}&transaction_uuid=${transaction_uuid}`;
 
     try {
       const verifyRes = await fetch(verifyUrl);
