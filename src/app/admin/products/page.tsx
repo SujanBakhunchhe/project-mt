@@ -73,7 +73,7 @@ export default function AdminProducts() {
       marketPrice: parseFloat(formData.marketPrice),
       stock: parseInt(formData.stock),
       features: formData.features.split("\n").filter(f => f.trim()),
-      specifications: { text: formData.specifications || "" }
+      specifications: formData.specifications || ""
     };
 
     const url = editingId ? `/api/admin/products/${editingId}` : "/api/admin/products";
@@ -109,7 +109,9 @@ export default function AdminProducts() {
       stock: product.stock.toString(),
       images: product.images || [],
       features: product.features?.join("\n") || "",
-      specifications: JSON.stringify(product.specifications || {}, null, 2),
+      specifications: JSON.stringify(product.specifications || {}, null, 2).includes('{') 
+        ? product.specifications?.text || '' 
+        : product.specifications || '',
       featured: product.featured || false,
       upcoming: product.upcoming || false,
       releaseDate: product.releaseDate || ""

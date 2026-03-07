@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { PrimaryButton } from "@/components/Buttons";
 import { useToast } from "@/components/ToastProvider";
 import { useCart } from "@/components/CartProvider";
-import { useSession } from "next-auth/react";
+import { useWishlist } from "@/components/WishlistProvider";
 
 interface Part {
   id: string;
@@ -21,37 +20,21 @@ interface Part {
 export function PartCard({ part }: { part: Part }) {
   const { showToast } = useToast();
   const { addItem } = useCart();
-  const { data: session } = useSession();
-  const [inWishlist, setInWishlist] = useState(false);
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
   const handleAddToCart = () => {
     addItem({ id: part.id, name: part.name, price: part.price });
     showToast(`${part.name} added to cart!`, "success");
   };
 
-  const toggleWishlist = async (e: React.MouseEvent) => {
+  const toggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (!session) {
-      showToast("Please login to add to wishlist", "error");
-      return;
-    }
-
-    try {
-      if (inWishlist) {
-        await fetch(`/api/wishlist?productId=${part.id}`, { method: "DELETE" });
-        setInWishlist(false);
-        showToast("Removed from wishlist", "success");
-      } else {
-        await fetch("/api/wishlist", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ productId: part.id.toString() }),
-        });
-        setInWishlist(true);
-        showToast("Added to wishlist", "success");
-      }
-    } catch (error) {
-      showToast("Failed to update wishlist", "error");
+    if (isInWishlist(part.id)) {
+      removeFromWishlist(part.id);
+      showToast("Removed from wishlist", "success");
+    } else {
+      addToWishlist(part.id);
+      showToast("Added to wishlist", "success");
     }
   };
 
@@ -61,7 +44,7 @@ export function PartCard({ part }: { part: Part }) {
         onClick={toggleWishlist}
         className="absolute top-3 right-3 z-10 p-1.5 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all"
       >
-        <svg className={`w-4 h-4 md:w-5 md:h-5 ${inWishlist ? 'fill-red-500 text-red-500' : 'text-white'}`} fill={inWishlist ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+        <svg className={`w-4 h-4 md:w-5 md:h-5 ${isInWishlist(part.id) ? 'fill-red-500 text-red-500' : 'text-white'}`} fill={isInWishlist(part.id) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
         </svg>
       </button>

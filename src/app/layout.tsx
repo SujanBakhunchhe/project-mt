@@ -11,6 +11,8 @@ import { ToastProvider } from "@/components/ToastProvider";
 import { CartProvider } from "@/components/CartProvider";
 import { usePathname } from "next/navigation";
 
+import { WishlistProvider } from "@/components/WishlistProvider";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -56,10 +58,12 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning>
         <SessionProvider>
           <CartProvider>
-            <ToastProvider>
-              <SessionManager />
-              <LayoutContent>{children}</LayoutContent>
-            </ToastProvider>
+            <WishlistProvider>
+              <ToastProvider>
+                <SessionManager />
+                <LayoutContent>{children}</LayoutContent>
+              </ToastProvider>
+            </WishlistProvider>
           </CartProvider>
         </SessionProvider>
       </body>

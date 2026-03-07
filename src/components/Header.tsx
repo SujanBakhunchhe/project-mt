@@ -57,6 +57,12 @@ export function Header() {
               <div className="w-20 h-10 bg-white/10 rounded-lg animate-pulse"></div>
             ) : session ? (
               <>
+                <Link href="/wishlist">
+                  <Button variant="ghost" className="text-white hover:bg-white/10">
+                    <span className="hidden md:inline">Wishlist</span>
+                    <span className="md:hidden">❤️</span>
+                  </Button>
+                </Link>
                 <Link href="/orders">
                   <Button variant="ghost" className="text-white hover:bg-white/10">
                     <span className="hidden md:inline">Orders</span>
@@ -162,6 +168,10 @@ export function Header() {
             
             {session ? (
               <>
+                <Link href="/wishlist" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 text-white/90 hover:bg-white/10 hover:text-white py-3 px-4 rounded-lg transition-all">
+                  <span className="text-xl">❤️</span>
+                  Wishlist
+                </Link>
                 <Link href="/orders" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 text-white/90 hover:bg-white/10 hover:text-white py-3 px-4 rounded-lg transition-all">
                   <span className="text-xl">📦</span>
                   My Orders

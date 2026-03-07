@@ -19,7 +19,11 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
   const showToast = (message: string, type: "success" | "error" | "info" = "success") => {
     const id = Date.now();
-    setToasts((prev) => [...prev, { id, message, type }]);
+    setToasts((prev) => {
+      // Limit to 3 toasts max
+      const newToasts = [...prev, { id, message, type }];
+      return newToasts.slice(-3);
+    });
     setTimeout(() => {
       setToasts((prev) => prev.filter((toast) => toast.id !== id));
     }, 3000);

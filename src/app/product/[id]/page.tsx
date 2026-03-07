@@ -5,15 +5,18 @@ import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useCart } from "@/components/CartProvider";
 import { useToast } from "@/components/ToastProvider";
+import { useWishlist } from "@/components/WishlistProvider";
 import { ProductReviews } from "@/components/ProductReviews";
 
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const [product, setProduct] = useState<any>(null);
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const { addItem } = useCart();
   const { showToast } = useToast();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const [productId, setProductId] = useState<string>("");
 
   useEffect(() => {
@@ -28,6 +31,22 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         const res = await fetch(`/api/products/${productId}`);
         const data = await res.json();
         setProduct(data);
+        
+        // Fetch related products from same category
+        if (data.category) {
+          const relatedRes = await fetch(`/api/products?category=${data.category}`);
+          const relatedData = await relatedRes.json();
+          const filtered = relatedData.filter((p: any) => p.id !== productId).slice(0, 4);
+          
+          // If no related products in same category, get random products
+          if (filtered.length === 0) {
+            const allRes = await fetch(`/api/products`);
+            const allData = await allRes.json();
+            setRelatedProducts(allData.filter((p: any) => p.id !== productId).slice(0, 4));
+          } else {
+            setRelatedProducts(filtered);
+          }
+        }
       } catch (error) {
         console.error("Failed to fetch product");
       } finally {
@@ -197,14 +216,36 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 </div>
               </div>
 
-              {/* Add to Cart Button */}
-              <button
-                onClick={handleAddToCart}
-                disabled={product.stock === 0}
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3.5 px-6 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/30"
-              >
-                {product.stock === 0 ? '🚫 Out of Stock' : '🛒 Add to Cart'}
-              </button>
+              {/* Add to Cart & Wishlist Buttons */}
+              <div className="flex gap-3">
+                <button
+                  onClick={handleAddToCart}
+                  disabled={product.stock === 0}
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3.5 px-6 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/30"
+                >
+                  {product.stock === 0 ? '🚫 Out of Stock' : '🛒 Add to Cart'}
+                </button>
+                <button
+                  onClick={() => {
+                    if (isInWishlist(product.id)) {
+                      removeFromWishlist(product.id);
+                      showToast("Removed from wishlist", "success");
+                    } else {
+                      addToWishlist(product.id);
+                      showToast("Added to wishlist", "success");
+                    }
+                  }}
+                  className={`p-3.5 rounded-lg transition-all shadow-lg ${
+                    isInWishlist(product.id)
+                      ? 'bg-red-600 hover:bg-red-700 text-white'
+                      : 'bg-white/10 hover:bg-white/20 text-white'
+                  }`}
+                >
+                  <svg className="w-6 h-6" fill={isInWishlist(product.id) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                </button>
+              </div>
 
               {/* WhatsApp Button */}
               <a
@@ -247,14 +288,11 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
         <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-xl p-5 md:p-6">
           <h2 className="text-xl font-bold text-white mb-4">Specifications</h2>
-          <dl className="space-y-2">
-            {product.specifications && Object.entries(product.specifications).map(([key, value]) => (
-              <div key={key} className="flex justify-between border-b border-white/10 pb-2 text-sm">
-                <dt className="text-white/60">{key}</dt>
-                <dd className="text-white font-medium text-right">{String(value)}</dd>
-              </div>
-            ))}
-          </dl>
+          <div className="text-white/80 text-sm whitespace-pre-line">
+            {typeof product.specifications === 'string' 
+              ? product.specifications 
+              : product.specifications?.text || 'No specifications available'}
+          </div>
         </div>
       </div>
 
@@ -262,6 +300,42 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
       <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-xl p-5 md:p-6">
         <ProductReviews productId={productId} />
       </div>
+
+      {/* Related Products */}
+      {relatedProducts.length > 0 && (
+        <div>
+          <h2 className="text-2xl font-bold text-white mb-6">You May Also Like</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {relatedProducts.map((relatedProduct) => (
+              <Link 
+                key={relatedProduct.id} 
+                href={`/product/${relatedProduct.id}`}
+                className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-xl overflow-hidden hover:bg-white/20 transition-all group"
+              >
+                <div className="aspect-square bg-white/5 flex items-center justify-center p-4">
+                  {relatedProduct.images?.[0]?.startsWith('http') ? (
+                    <img 
+                      src={relatedProduct.images[0]} 
+                      alt={relatedProduct.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-4xl">🔧</span>
+                  )}
+                </div>
+                <div className="p-4">
+                  <h3 className="text-white font-semibold text-sm mb-2 line-clamp-2 group-hover:text-blue-300 transition-colors">
+                    {relatedProduct.name}
+                  </h3>
+                  <p className="text-blue-400 font-bold text-lg">
+                    NPR {relatedProduct.price.toLocaleString()}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

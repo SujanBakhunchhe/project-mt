@@ -12,12 +12,13 @@ export default function CartPage() {
   const total = subtotal + shipping;
 
   return (
-    <div className="container mx-auto px-4 py-8 md:py-12">
-      <h1 className="text-3xl md:text-5xl font-bold text-white mb-6 md:mb-8">Shopping Cart</h1>
+    <div className="container mx-auto px-4 py-8 md:py-12 max-w-7xl">
+      <h1 className="text-3xl md:text-4xl font-bold text-white mb-6 md:mb-8">Shopping Cart</h1>
 
       {items.length === 0 ? (
-        <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-8 md:p-12 text-center">
-          <p className="text-white/70 text-lg md:text-xl mb-6">Your cart is empty</p>
+        <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-12 text-center">
+          <div className="text-6xl mb-4">🛒</div>
+          <p className="text-white/70 text-xl mb-6">Your cart is empty</p>
           <Link href="/parts">
             <PrimaryButton>
               Continue Shopping
@@ -25,45 +26,43 @@ export default function CartPage() {
           </Link>
         </div>
       ) : (
-        <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
-          <div className="lg:col-span-2 space-y-4">
+        <div className="grid lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-3">
             {items.map((item) => (
-              <div key={item.id} className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-4 md:p-6">
-                <div className="flex flex-col sm:flex-row gap-4 md:gap-6">
-                  <div className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-blue-600/20 to-indigo-600/20 rounded-xl flex items-center justify-center flex-shrink-0 mx-auto sm:mx-0">
-                    <span className="text-3xl md:text-4xl">🔧</span>
+              <div key={item.id} className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-xl p-4 hover:bg-white/15 transition-all">
+                <div className="flex gap-4">
+                  <div className="w-20 h-20 bg-gradient-to-br from-blue-600/20 to-indigo-600/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <span className="text-3xl">🔧</span>
                   </div>
-                  <div className="flex-1 text-center sm:text-left">
-                    <h3 className="text-lg md:text-xl font-bold text-white mb-2">{item.name}</h3>
-                    <div className="flex items-center justify-center sm:justify-start gap-3 mb-3">
-                      <span className="text-xl md:text-2xl font-bold text-white">NPR {item.price}</span>
-                    </div>
-                    <div className="flex flex-col sm:flex-row items-center gap-4">
-                      <div className="flex items-center gap-2">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-base md:text-lg font-bold text-white mb-1 truncate">{item.name}</h3>
+                    <p className="text-lg font-bold text-blue-400 mb-3">NPR {item.price.toLocaleString()}</p>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 bg-white/5 rounded-lg p-1">
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="w-8 h-8 bg-white/10 border border-white/20 rounded-lg text-white hover:bg-white/20"
+                          className="w-7 h-7 bg-white/10 hover:bg-white/20 rounded text-white font-bold transition-colors"
                         >
-                          -
+                          −
                         </button>
-                        <span className="text-white w-8 text-center">{item.quantity}</span>
+                        <span className="text-white w-8 text-center font-semibold">{item.quantity}</span>
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="w-8 h-8 bg-white/10 border border-white/20 rounded-lg text-white hover:bg-white/20"
+                          className="w-7 h-7 bg-white/10 hover:bg-white/20 rounded text-white font-bold transition-colors"
                         >
                           +
                         </button>
                       </div>
                       <button
                         onClick={() => removeItem(item.id)}
-                        className="text-red-400 hover:text-red-300 text-sm"
+                        className="text-red-400 hover:text-red-300 text-sm font-medium transition-colors"
                       >
                         Remove
                       </button>
                     </div>
                   </div>
-                  <div className="text-center sm:text-right">
-                    <p className="text-xl md:text-2xl font-bold text-white">NPR {item.price * item.quantity}</p>
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-lg md:text-xl font-bold text-white">NPR {(item.price * item.quantity).toLocaleString()}</p>
                   </div>
                 </div>
               </div>
@@ -71,36 +70,36 @@ export default function CartPage() {
           </div>
 
           <div className="lg:col-span-1">
-            <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-6 lg:sticky lg:top-24">
-              <h2 className="text-xl md:text-2xl font-bold text-white mb-6">Order Summary</h2>
-              <div className="space-y-3 mb-6">
-                <div className="flex justify-between text-white/70">
-                  <span>Subtotal</span>
-                  <span>NPR {subtotal}</span>
+            <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-xl p-5 lg:sticky lg:top-24">
+              <h2 className="text-xl font-bold text-white mb-4">Order Summary</h2>
+              <div className="space-y-3 mb-4 pb-4 border-b border-white/20">
+                <div className="flex justify-between text-white/70 text-sm">
+                  <span>Subtotal ({items.length} items)</span>
+                  <span>NPR {subtotal.toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between text-white/70">
+                <div className="flex justify-between text-white/70 text-sm">
                   <span>Shipping</span>
-                  <span>{shipping === 0 ? 'FREE' : `NPR ${shipping}`}</span>
+                  <span className={shipping === 0 ? 'text-green-400 font-semibold' : ''}>{shipping === 0 ? 'FREE' : `NPR ${shipping}`}</span>
                 </div>
                 {subtotal < 3000 && (
-                  <p className="text-sm text-blue-400">Add NPR {3000 - subtotal} more for free shipping!</p>
-                )}
-                <div className="border-t border-white/20 pt-3">
-                  <div className="flex justify-between text-white text-lg md:text-xl font-bold">
-                    <span>Total</span>
-                    <span>NPR {total}</span>
+                  <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
+                    <p className="text-xs text-blue-300">🎉 Add NPR {(3000 - subtotal).toLocaleString()} more for free shipping!</p>
                   </div>
-                </div>
+                )}
               </div>
-              <Link href="/checkout">
-                <PrimaryButton className="w-full mb-3">
+              <div className="flex justify-between text-white text-xl font-bold mb-5">
+                <span>Total</span>
+                <span>NPR {total.toLocaleString()}</span>
+              </div>
+              <Link href="/checkout" className="block mb-3">
+                <button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 rounded-lg transition-all shadow-lg">
                   Proceed to Checkout
-                </PrimaryButton>
+                </button>
               </Link>
-              <Link href="/parts">
-                <WhiteButton className="w-full">
+              <Link href="/parts" className="block">
+                <button className="w-full bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold py-3 rounded-lg transition-all">
                   Continue Shopping
-                </WhiteButton>
+                </button>
               </Link>
             </div>
           </div>
