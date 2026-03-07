@@ -58,8 +58,15 @@ export function Header() {
             ) : session ? (
               <>
                 <Link href="/profile">
-                  <Button variant="ghost" className="text-white hover:bg-white/10">
-                    {session.user?.name || "Profile"}
+                  <Button variant="ghost" className="text-white hover:bg-white/10 flex items-center gap-2">
+                    {session.user?.image ? (
+                      <img src={session.user.image} alt="Profile" className="w-8 h-8 rounded-full object-cover" />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-sm font-bold">
+                        {session.user?.name?.[0]?.toUpperCase() || "U"}
+                      </div>
+                    )}
+                    <span className="hidden md:inline">{session.user?.name || "Profile"}</span>
                   </Button>
                 </Link>
                 <Button 

@@ -151,9 +151,13 @@ export default function ProfilePage() {
         <div className="lg:col-span-1">
           <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-6 md:p-8">
             <div className="flex flex-col items-center mb-6">
-              <div className="w-24 h-24 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white text-4xl font-bold mb-4">
-                {profile.name ? profile.name[0].toUpperCase() : "U"}
-              </div>
+              {profile.image ? (
+                <Image src={profile.image} alt="Profile" width={96} height={96} className="rounded-full object-cover mb-4" />
+              ) : (
+                <div className="w-24 h-24 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white text-4xl font-bold mb-4">
+                  {profile.name ? profile.name[0].toUpperCase() : "U"}
+                </div>
+              )}
               <h2 className="text-2xl font-bold text-white">{profile.name || "User"}</h2>
               <p className="text-white/60">{profile.email || "Loading..."}</p>
             </div>
@@ -188,29 +192,44 @@ export default function ProfilePage() {
                   <Label className="text-white">Profile Picture</Label>
                   <div className="flex items-center gap-4 mt-2">
                     {profile.image ? (
-                      <Image src={profile.image} alt="Profile" width={80} height={80} className="rounded-full object-cover" />
+                      <div className="relative">
+                        <Image src={profile.image} alt="Profile" width={80} height={80} className="rounded-full object-cover border-2 border-white/20" />
+                        <button
+                          type="button"
+                          onClick={() => setProfile({...profile, image: ""})}
+                          className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center text-white text-xs"
+                          title="Remove photo"
+                        >
+                          ✕
+                        </button>
+                      </div>
                     ) : (
                       <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold">
                         {profile.name?.charAt(0)?.toUpperCase() || "U"}
                       </div>
                     )}
-                    <CldUploadWidget
-                      uploadPreset="bikeparts"
-                      onSuccess={(result: any) => {
-                        setProfile({...profile, image: result.info.secure_url});
-                        showToast("Image uploaded!", "success");
-                      }}
-                    >
-                      {({ open }) => (
-                        <button
-                          type="button"
-                          onClick={() => open()}
-                          className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors"
-                        >
-                          Upload Photo
-                        </button>
+                    <div className="flex flex-col gap-2">
+                      <CldUploadWidget
+                        uploadPreset="bikeparts"
+                        onSuccess={(result: any) => {
+                          setProfile({...profile, image: result.info.secure_url});
+                          showToast("Photo uploaded!", "success");
+                        }}
+                      >
+                        {({ open }) => (
+                          <button
+                            type="button"
+                            onClick={() => open()}
+                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                          >
+                            {profile.image ? "Change Photo" : "Upload Photo"}
+                          </button>
+                        )}
+                      </CldUploadWidget>
+                      {profile.image && (
+                        <p className="text-white/60 text-xs">Click ✕ to remove</p>
                       )}
-                    </CldUploadWidget>
+                    </div>
                   </div>
                 </div>
                 <div>
