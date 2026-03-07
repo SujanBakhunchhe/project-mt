@@ -57,6 +57,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     })
   ],
   callbacks: {
+    async signIn({ user, account }) {
+      return true;
+    },
+    async redirect({ url, baseUrl }) {
+      // Redirect to home after OAuth login
+      if (url.startsWith(baseUrl)) return url;
+      return baseUrl;
+    },
     async jwt({ token, user }) {
       if (user) {
         token.role = user.role
