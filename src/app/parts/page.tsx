@@ -4,9 +4,21 @@ import { useState, useEffect } from "react";
 import { ProductCardSkeleton } from "@/components/Skeletons";
 import { PartCard } from "@/components/PartCard";
 
+interface ProductCardData {
+  id: string;
+  name: string;
+  price: number;
+  marketPrice: number;
+  category: string;
+  brand?: string | null;
+  stock?: number | null;
+  images?: string[] | null;
+  description?: string | null;
+}
+
 export default function PartsPage() {
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<ProductCardData[]>([]);
   const [categories, setCategories] = useState<string[]>(["All"]);
   const [loading, setLoading] = useState(true);
 
@@ -15,13 +27,13 @@ export default function PartsPage() {
       try {
         const res = await fetch("/api/products");
         const data = await res.json();
-        const productsArray = Array.isArray(data) ? data : [];
+        const productsArray: ProductCardData[] = Array.isArray(data) ? data : [];
         setProducts(productsArray);
         
         // Get unique categories from products
-        const uniqueCategories = ["All", ...new Set(productsArray.map((p: any) => p.category).filter(Boolean))];
+        const uniqueCategories = ["All", ...new Set(productsArray.map((p) => p.category).filter(Boolean))];
         setCategories(uniqueCategories);
-      } catch (error) {
+      } catch {
         console.error("Failed to fetch products");
         setProducts([]);
       } finally {
@@ -33,7 +45,7 @@ export default function PartsPage() {
 
   const filteredParts = selectedCategory === "All" 
     ? products 
-    : products.filter((p: any) => p.category === selectedCategory);
+    : products.filter((p) => p.category === selectedCategory);
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="mb-8">
@@ -60,13 +72,13 @@ export default function PartsPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4 lg:gap-5 xl:grid-cols-4 2xl:grid-cols-5">
         {loading ? (
           Array.from({ length: 10 }).map((_, i) => <ProductCardSkeleton key={i} />)
         ) : filteredParts.length === 0 ? (
           <p className="text-white col-span-full text-center py-12">No products found</p>
         ) : (
-          filteredParts.map((part: any) => (
+          filteredParts.map((part) => (
             <PartCard key={part.id} part={part} />
           ))
         )}

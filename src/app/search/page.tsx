@@ -3,9 +3,21 @@
 import { useState, useEffect } from "react";
 import { PartCard } from "@/components/PartCard";
 
+interface ProductCardData {
+  id: string;
+  name: string;
+  price: number;
+  marketPrice: number;
+  category: string;
+  brand?: string | null;
+  stock?: number | null;
+  images?: string[] | null;
+  description?: string | null;
+}
+
 export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<ProductCardData[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -20,7 +32,7 @@ export default function SearchPage() {
         const res = await fetch(`/api/products?search=${encodeURIComponent(searchQuery)}`);
         const data = await res.json();
         setProducts(data);
-      } catch (error) {
+      } catch {
         console.error("Search failed");
       } finally {
         setLoading(false);
@@ -58,14 +70,14 @@ export default function SearchPage() {
             {loading ? "Searching..." : `Found ${products.length} result${products.length !== 1 ? 's' : ''} for "${searchQuery}"`}
           </p>
           {products.length > 0 ? (
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              {products.map((part: any) => (
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-3 lg:gap-5 xl:grid-cols-4">
+              {products.map((part) => (
                 <PartCard key={part.id} part={part} />
               ))}
             </div>
           ) : !loading ? (
             <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-12 text-center">
-              <p className="text-white/70 text-lg">No products found for "{searchQuery}"</p>
+              <p className="text-white/70 text-lg">No products found for {searchQuery}</p>
             </div>
           ) : null}
         </>
@@ -77,4 +89,3 @@ export default function SearchPage() {
     </div>
   );
 }
-

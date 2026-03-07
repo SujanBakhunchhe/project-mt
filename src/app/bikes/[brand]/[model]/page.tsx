@@ -4,36 +4,51 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { PartCard } from "@/components/PartCard";
 
+interface ProductCardData {
+  id: string;
+  name: string;
+  price: number;
+  marketPrice: number;
+  category: string;
+  brand?: string | null;
+  stock?: number | null;
+  images?: string[] | null;
+  description?: string | null;
+}
+
+interface BikeModelData {
+  id: string;
+  name: string;
+}
+
 export default function BikePartsPage() {
   const params = useParams();
   const brandParam = params.brand as string;
   const modelParam = params.model as string;
-  const [parts, setParts] = useState<any[]>([]);
-  const [modelData, setModelData] = useState<any>(null);
+  const [parts, setParts] = useState<ProductCardData[]>([]);
 
   const brand = brandParam.charAt(0).toUpperCase() + brandParam.slice(1);
   const modelName = modelParam.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
   useEffect(() => {
+    const fetchData = async () => {
+      const modelsRes = await fetch("/api/admin/models");
+      const models = (await modelsRes.json()) as BikeModelData[];
+      const currentModel = models.find((model) =>
+        model.name.toLowerCase().replace(/\s+/g, "-") === modelParam.toLowerCase()
+      );
+
+      if (currentModel) {
+        const productsRes = await fetch(`/api/products?bikeModelId=${currentModel.id}`);
+        const products = (await productsRes.json()) as ProductCardData[];
+        setParts(products);
+      } else {
+        setParts([]);
+      }
+    };
+
     fetchData();
   }, [brandParam, modelParam]);
-
-  const fetchData = async () => {
-    // Get all models to find the current one
-    const modelsRes = await fetch("/api/admin/models");
-    const models = await modelsRes.json();
-    const currentModel = models.find((m: any) => 
-      m.name.toLowerCase().replace(/\s+/g, "-") === modelParam.toLowerCase()
-    );
-    setModelData(currentModel);
-
-    // Fetch products for this model
-    if (currentModel) {
-      const productsRes = await fetch(`/api/products?bikeModelId=${currentModel.id}`);
-      const products = await productsRes.json();
-      setParts(products);
-    }
-  };
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -55,7 +70,7 @@ export default function BikePartsPage() {
       {parts.length === 0 ? (
         <p className="text-white/60 text-center py-12">No parts available for this model yet.</p>
       ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-3 lg:gap-5 xl:grid-cols-4">
           {parts.map((part) => (
             <PartCard key={part.id} part={part} />
           ))}

@@ -31,8 +31,12 @@ export default function CartPage() {
             {items.map((item) => (
               <div key={item.id} className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-xl p-4 hover:bg-white/15 transition-all">
                 <div className="flex gap-4">
-                  <div className="w-20 h-20 bg-gradient-to-br from-blue-600/20 to-indigo-600/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <span className="text-3xl">🔧</span>
+                  <div className="w-20 h-20 bg-gradient-to-br from-blue-600/20 to-indigo-600/20 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    {item.image ? (
+                      <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-3xl">🔧</span>
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-base md:text-lg font-bold text-white mb-1 truncate">{item.name}</h3>
