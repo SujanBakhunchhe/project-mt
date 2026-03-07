@@ -5,7 +5,7 @@ import { PartCard } from "@/components/PartCard";
 
 export default function PartsPage() {
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<string[]>(["All"]);
   const [loading, setLoading] = useState(true);
 
