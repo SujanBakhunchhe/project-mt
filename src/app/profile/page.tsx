@@ -81,6 +81,7 @@ export default function ProfilePage() {
           email: profile.email,
           phone: profile.phone,
           address: profile.address,
+          image: profile.image,
         }),
       });
 
@@ -93,11 +94,22 @@ export default function ProfilePage() {
       }
 
       showToast("Profile updated successfully!", "success");
+      
+      // Trigger session update with new data
+      await update({
+        user: {
+          ...session?.user,
+          image: profile.image
+        }
+      });
+      
       setIsEditing(false);
-      await update();
+      setLoading(false);
+      
+      // Reload to ensure everything is fresh
+      window.location.href = '/profile';
     } catch (error) {
       showToast("Failed to update profile", "error");
-    } finally {
       setLoading(false);
     }
   };

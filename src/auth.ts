@@ -114,18 +114,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.role = user.role || "user";
         token.id = user.id;
+        token.picture = user.image;
       }
       
-      // For OAuth users, always fetch fresh role from database
+      // For OAuth users or on update, always fetch fresh data from database
       if (token.sub && (account || trigger === "update")) {
         try {
           const dbUser = await prisma.user.findUnique({
             where: { id: token.sub },
-            select: { role: true, id: true }
+            select: { role: true, id: true, image: true }
           });
           if (dbUser) {
             token.role = dbUser.role;
             token.id = dbUser.id;
+            token.picture = dbUser.image;
           }
         } catch (error) {
           console.error("Error fetching user role:", error);
@@ -143,6 +145,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (session.user && token) {
         session.user.id = token.sub || token.id as string;
         session.user.role = (token.role as string) || "user";
+        session.user.image = (token.picture as string) || null;
       }
       return session;
     }

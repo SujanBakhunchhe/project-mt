@@ -19,6 +19,7 @@ export async function GET() {
         email: true,
         phone: true,
         address: true,
+        image: true,
         role: true,
         createdAt: true,
       }

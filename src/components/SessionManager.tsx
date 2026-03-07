@@ -7,7 +7,11 @@ export function SessionManager() {
   const { data: session } = useSession();
 
   useEffect(() => {
-    if (!session) return;
+    // Clear session storage when logged out
+    if (!session) {
+      sessionStorage.removeItem("sessionActive");
+      return;
+    }
 
     // Check if this is a new browser session
     const isNewSession = !sessionStorage.getItem("sessionActive");
