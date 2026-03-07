@@ -11,6 +11,15 @@ export async function POST(req: Request) {
 
     const data = await req.json();
     
+    // Auto-create category if it doesn't exist
+    if (data.category) {
+      await prisma.category.upsert({
+        where: { name: data.category },
+        update: {},
+        create: { name: data.category }
+      });
+    }
+    
     const product = await prisma.product.create({
       data: {
         name: data.name,

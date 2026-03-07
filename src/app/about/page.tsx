@@ -33,8 +33,12 @@ export default function AboutPage() {
                 </p>
               </div>
               
-              <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-3xl p-12 flex items-center justify-center">
-                <div className="text-9xl">🏍️</div>
+              <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-3xl overflow-hidden">
+                <img 
+                  src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800&q=80" 
+                  alt="Motorcycle workshop"
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
           </div>

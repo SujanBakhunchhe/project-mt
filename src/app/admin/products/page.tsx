@@ -91,6 +91,7 @@ export default function AdminProducts() {
       setEditingId(null);
       resetForm();
       fetchProducts();
+      fetchCategories(); // Refresh categories list
     } else {
       showToast("Failed to save product", "error");
     }
@@ -195,22 +196,27 @@ export default function AdminProducts() {
               <div>
                 <Label className="text-white">Category</Label>
                 <select 
-                  value={formData.category} 
-                  onChange={e => setFormData({...formData, category: e.target.value})} 
-                  required 
+                  value={formData.category && categories.includes(formData.category) ? formData.category : "__custom__"}
+                  onChange={e => {
+                    if (e.target.value !== "__custom__") {
+                      setFormData({...formData, category: e.target.value});
+                    }
+                  }}
+                  required={formData.category !== ""}
                   className="w-full bg-slate-800 border border-white/20 text-white rounded-lg p-2 cursor-pointer hover:bg-slate-700 transition-colors"
                   style={{ colorScheme: 'dark' }}
                 >
-                  <option value="">Select or type category</option>
+                  <option value="">Select existing category</option>
                   {categories.map(cat => (
                     <option key={cat} value={cat} className="bg-slate-800">{cat}</option>
                   ))}
+                  <option value="__custom__" className="bg-slate-700">+ Type New Category</option>
                 </select>
-                <p className="text-white/50 text-xs mt-1">Or type a new category name below</p>
                 <Input 
                   value={formData.category} 
                   onChange={e => setFormData({...formData, category: e.target.value})} 
-                  placeholder="Type new category name"
+                  placeholder="Or type new category name here"
+                  required
                   className="bg-white/10 border-white/20 text-white mt-2"
                 />
               </div>
@@ -229,9 +235,14 @@ export default function AdminProducts() {
               <Label className="text-white">Images</Label>
               <CldUploadWidget
                 uploadPreset="bikeparts"
+                options={{ multiple: true, maxFiles: 10 }}
                 onSuccess={(result: any) => {
-                  const newImages = [...formData.images, result.info.secure_url];
-                  setFormData(prev => ({...prev, images: newImages}));
+                  if (result.event === 'success') {
+                    setFormData(prev => ({
+                      ...prev, 
+                      images: [...prev.images, result.info.secure_url]
+                    }));
+                  }
                 }}
               >
                 {({ open }) => (
@@ -244,7 +255,7 @@ export default function AdminProducts() {
                     }} 
                     className="mb-2"
                   >
-                    Upload Image
+                    Upload Images (Multiple)
                   </Button>
                 )}
               </CldUploadWidget>

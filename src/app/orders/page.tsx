@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/ToastProvider";
+import { OrderCardSkeleton } from "@/components/Skeletons";
 
 function OrdersContent() {
   const { data: session, status } = useSession();
@@ -48,8 +49,11 @@ function OrdersContent() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-12 text-center">
-        <p className="text-white">Loading orders...</p>
+      <div className="container mx-auto px-4 py-12">
+        <h1 className="text-4xl font-bold text-white mb-8">My Orders</h1>
+        <div className="space-y-4">
+          {Array.from({ length: 3 }).map((_, i) => <OrderCardSkeleton key={i} />)}
+        </div>
       </div>
     );
   }

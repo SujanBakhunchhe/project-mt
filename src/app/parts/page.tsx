@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { ProductCardSkeleton } from "@/components/Skeletons";
 import { PartCard } from "@/components/PartCard";
 
 export default function PartsPage() {
@@ -61,7 +62,7 @@ export default function PartsPage() {
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
         {loading ? (
-          <p className="text-white col-span-full text-center py-12">Loading products...</p>
+          Array.from({ length: 10 }).map((_, i) => <ProductCardSkeleton key={i} />)
         ) : filteredParts.length === 0 ? (
           <p className="text-white col-span-full text-center py-12">No products found</p>
         ) : (

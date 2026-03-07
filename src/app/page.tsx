@@ -18,66 +18,112 @@ export default function Home() {
   return (
     <>
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-20 md:py-32">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="inline-block bg-white/10 backdrop-blur-xl border border-white/20 text-white px-4 py-2 rounded-full text-sm font-semibold mb-6">
-                🏍️ Nepal's #1 Bike Parts Store
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-indigo-600/20 to-purple-600/20"></div>
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
+        
+        <div className="container mx-auto px-4 py-16 md:py-24 relative">
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600/20 to-indigo-600/20 backdrop-blur-xl border border-white/20 text-white px-4 py-2 rounded-full text-sm font-semibold">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                Nepal's #1 Bike Parts Store
               </div>
-              <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-6 text-white">
-                Premium Bike Parts for Every Rider
+              
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight text-white">
+                Premium Bike Parts
+                <span className="block bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+                  for Every Rider
+                </span>
               </h1>
-              <p className="text-xl text-white/80 mb-8">
+              
+              <p className="text-lg md:text-xl text-white/70 max-w-xl">
                 Quality motorcycle parts and accessories delivered across Nepal. Fast shipping, genuine products, competitive prices.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
+              
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Link href="/bikes">
-                  <PrimaryButton size="lg" className="w-full sm:w-auto text-lg px-8 py-6">
-                    Browse Bikes →
-                  </PrimaryButton>
+                  <button className="group relative w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/50 transition-all overflow-hidden">
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                      Browse Bikes
+                      <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                    </span>
+                  </button>
                 </Link>
                 <Link href="/parts">
-                  <WhiteButton size="lg" className="w-full sm:w-auto text-lg px-8 py-6">
+                  <button className="w-full sm:w-auto px-8 py-4 backdrop-blur-xl bg-white/10 border border-white/20 text-white font-semibold rounded-xl hover:bg-white/20 transition-all">
                     View All Parts
-                  </WhiteButton>
+                  </button>
                 </Link>
+              </div>
+
+              <div className="flex items-center gap-8 pt-6">
+                <div>
+                  <div className="text-3xl font-bold text-white">500+</div>
+                  <div className="text-sm text-white/60">Products</div>
+                </div>
+                <div className="h-12 w-px bg-white/20"></div>
+                <div>
+                  <div className="text-3xl font-bold text-white">1000+</div>
+                  <div className="text-sm text-white/60">Happy Customers</div>
+                </div>
+                <div className="h-12 w-px bg-white/20"></div>
+                <div>
+                  <div className="text-3xl font-bold text-white">24/7</div>
+                  <div className="text-sm text-white/60">Support</div>
+                </div>
               </div>
             </div>
             
             <div className="relative">
-              <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-3xl overflow-hidden shadow-2xl aspect-square hover:scale-105 transition-transform duration-500">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl blur-3xl opacity-20 animate-pulse"></div>
+              <div className="relative backdrop-blur-2xl bg-white/5 border border-white/20 rounded-3xl overflow-hidden shadow-2xl hover:scale-105 transition-transform duration-500">
                 <img 
                   src="/r1-bike.jpg" 
                   alt="Yamaha R1 Motorcycle" 
-                  className="w-full h-full object-cover animate-float"
+                  className="w-full h-full object-cover"
                 />
+              </div>
+              
+              {/* Floating badges */}
+              <div className="absolute -top-4 -right-4 backdrop-blur-xl bg-green-500/20 border border-green-500/30 text-green-300 px-4 py-2 rounded-full text-sm font-semibold shadow-lg animate-float">
+                ✓ Genuine Parts
+              </div>
+              <div className="absolute -bottom-4 -left-4 backdrop-blur-xl bg-blue-500/20 border border-blue-500/30 text-blue-300 px-4 py-2 rounded-full text-sm font-semibold shadow-lg animate-float" style={{animationDelay: '1s'}}>
+                🚚 Free Delivery
               </div>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Features */}
-        <section className="py-20">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">Why Choose Us</h2>
-              <p className="text-white/70 max-w-2xl mx-auto">We're committed to providing the best experience for motorcycle enthusiasts across Nepal</p>
-            </div>
-            <div className="grid md:grid-cols-3 gap-8">
-              {[
-                {
-                  icon: (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  ),
-                  title: "Genuine Products",
-                  desc: "100% authentic bike parts from trusted manufacturers. Quality guaranteed."
-                },
-                {
-                  icon: (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  ),
-                  title: "Fast Delivery",
-                  desc: "Quick shipping across Nepal. Free delivery above NPR 3000."
+      {/* Features */}
+      <section className="py-16 md:py-20">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">Why Choose Us</h2>
+            <p className="text-white/60 max-w-2xl mx-auto">We're committed to providing the best experience for motorcycle enthusiasts across Nepal</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              {
+                icon: (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                ),
+                title: "Genuine Products",
+                desc: "100% authentic bike parts from trusted manufacturers. Quality guaranteed."
+              },
+              {
+                icon: (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                ),
+                title: "Fast Delivery",
+                desc: "Quick shipping across Nepal. Free delivery above NPR 3000."
                 },
                 {
                   icon: (

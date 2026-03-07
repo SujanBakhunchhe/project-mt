@@ -2,15 +2,20 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { BrandCardSkeleton } from "@/components/Skeletons";
 
 export default function BikesPage() {
   const [brands, setBrands] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch("/api/admin/brands")
       .then(res => res.json())
-      .then(data => setBrands(Array.isArray(data) ? data : []))
-      .catch(console.error);
+      .then(data => {
+        setBrands(Array.isArray(data) ? data : []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, []);
 
   return (
@@ -20,7 +25,11 @@ export default function BikesPage() {
         <p className="text-white/70 text-lg">Select your bike brand to find compatible parts</p>
       </div>
 
-      {brands.length === 0 ? (
+      {loading ? (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          {Array.from({ length: 8 }).map((_, i) => <BrandCardSkeleton key={i} />)}
+        </div>
+      ) : brands.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-white/60">No brands available yet</p>
         </div>

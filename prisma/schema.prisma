@@ -190,3 +190,16 @@ model Wishlist {
   
   @@unique([userId, productId])
 }
+
+model ReturnRequest {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderNumber String
+  email       String
+  phone       String
+  productName String
+  reason      String
+  description String
+  status      String   @default("pending") // pending, approved, rejected, completed
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

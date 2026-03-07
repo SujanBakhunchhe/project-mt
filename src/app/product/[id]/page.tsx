@@ -47,8 +47,39 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-12 text-center">
-        <p className="text-white text-xl">Loading...</p>
+      <div className="container mx-auto px-4 py-8 md:py-12">
+        <div className="h-4 bg-white/10 rounded w-64 mb-8 animate-pulse"></div>
+        
+        <div className="grid lg:grid-cols-5 gap-6 md:gap-8 mb-8">
+          {/* Image skeleton */}
+          <div className="lg:col-span-2">
+            <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-xl p-3 mb-2 animate-pulse">
+              <div className="aspect-square bg-white/5 rounded-lg"></div>
+            </div>
+            <div className="grid grid-cols-4 gap-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="aspect-square bg-white/10 rounded-lg animate-pulse"></div>
+              ))}
+            </div>
+          </div>
+
+          {/* Details skeleton */}
+          <div className="lg:col-span-3">
+            <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-xl p-4 animate-pulse">
+              <div className="h-8 bg-white/10 rounded w-3/4 mb-2"></div>
+              <div className="h-4 bg-white/10 rounded w-1/2 mb-4"></div>
+              <div className="h-10 bg-white/10 rounded w-1/3 mb-6"></div>
+              <div className="h-20 bg-white/10 rounded mb-6"></div>
+              <div className="h-12 bg-white/10 rounded mb-4"></div>
+              <div className="h-12 bg-white/10 rounded mb-4"></div>
+              <div className="space-y-2">
+                <div className="h-3 bg-white/10 rounded"></div>
+                <div className="h-3 bg-white/10 rounded"></div>
+                <div className="h-3 bg-white/10 rounded"></div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
