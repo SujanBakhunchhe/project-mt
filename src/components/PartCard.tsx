@@ -12,10 +12,10 @@ interface Part {
   price: number;
   marketPrice: number;
   category: string;
-  brand?: string;
-  stock?: number;
-  images?: string[];
-  description?: string;
+  brand?: string | null;
+  stock?: number | null;
+  images?: string[] | null;
+  description?: string | null;
 }
 
 export function PartCard({ part }: { part: Part }) {
