@@ -96,32 +96,55 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return true;
     },
     async redirect({ url, baseUrl }) {
-      // Redirect to home after OAuth login
+      console.log("Redirect callback:", { url, baseUrl });
+      
+      // For OAuth callback, redirect to home
+      if (url.includes("/api/auth/callback")) {
+        return baseUrl;
+      }
+      
+      // Always redirect to home after OAuth
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
       if (url.startsWith(baseUrl)) return url;
+      
       return baseUrl;
     },
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, trigger }) {
+      // On initial sign in
       if (user) {
-        token.role = user.role
+        token.role = user.role || "user";
+        token.id = user.id;
       }
-      // For OAuth, fetch role from database
-      if (account && token.sub) {
-        const dbUser = await prisma.user.findUnique({
-          where: { id: token.sub },
-          select: { role: true }
-        });
-        if (dbUser) {
-          token.role = dbUser.role;
+      
+      // For OAuth users, always fetch fresh role from database
+      if (token.sub && (account || trigger === "update")) {
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.sub },
+            select: { role: true, id: true }
+          });
+          if (dbUser) {
+            token.role = dbUser.role;
+            token.id = dbUser.id;
+          }
+        } catch (error) {
+          console.error("Error fetching user role:", error);
         }
       }
-      return token
+      
+      // Ensure role always exists
+      if (!token.role) {
+        token.role = "user";
+      }
+      
+      return token;
     },
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.sub!
-        session.user.role = token.role as string
+      if (session.user && token) {
+        session.user.id = token.sub || token.id as string;
+        session.user.role = (token.role as string) || "user";
       }
-      return session
+      return session;
     }
   }
 })
