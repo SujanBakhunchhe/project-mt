@@ -152,7 +152,7 @@ export default function ProfilePage() {
           <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-6 md:p-8">
             <div className="flex flex-col items-center mb-6">
               {profile.image ? (
-                <Image src={profile.image} alt="Profile" width={96} height={96} className="rounded-full object-cover mb-4" />
+                <Image src={profile.image} alt="Profile" width={96} height={96} className="w-24 h-24 rounded-full object-cover mb-4" />
               ) : (
                 <div className="w-24 h-24 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white text-4xl font-bold mb-4">
                   {profile.name ? profile.name[0].toUpperCase() : "U"}
@@ -193,7 +193,7 @@ export default function ProfilePage() {
                   <div className="flex items-center gap-4 mt-2">
                     {profile.image ? (
                       <div className="relative">
-                        <Image src={profile.image} alt="Profile" width={80} height={80} className="rounded-full object-cover border-2 border-white/20" />
+                        <Image src={profile.image} alt="Profile" width={80} height={80} className="w-20 h-20 rounded-full object-cover border-2 border-white/20" />
                         <button
                           type="button"
                           onClick={() => setProfile({...profile, image: ""})}
