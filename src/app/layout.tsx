@@ -35,7 +35,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       </div>
 
       <div className="relative z-10 flex-1 flex flex-col">
-        <Header />
+        {!isAuthPage && <Header />}
         <main className="flex-1">
           {children}
         </main>

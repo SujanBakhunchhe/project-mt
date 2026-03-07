@@ -57,11 +57,11 @@ function ResetPasswordForm() {
   };
 
   return (
-    <Card className="w-full max-w-md relative backdrop-blur-2xl bg-white/10 border border-white/20 shadow-2xl rounded-3xl overflow-hidden">
-      <div className="p-8 relative z-10">
+    <Card className="w-full max-w-sm relative backdrop-blur-2xl bg-white/10 border border-white/20 shadow-2xl rounded-3xl overflow-hidden">
+      <div className="p-6 relative z-10">
         <h1 className="text-4xl font-bold text-white mb-6 text-center">Reset Password</h1>
         
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="password" className="text-white/90">New Password</Label>
             <Input
@@ -106,8 +106,8 @@ export default function ResetPasswordPage() {
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"></div>
       
       <Suspense fallback={
-        <Card className="w-full max-w-md relative backdrop-blur-2xl bg-white/10 border border-white/20 shadow-2xl rounded-3xl overflow-hidden">
-          <div className="p-8 text-center">
+        <Card className="w-full max-w-sm relative backdrop-blur-2xl bg-white/10 border border-white/20 shadow-2xl rounded-3xl overflow-hidden">
+          <div className="p-6 text-center">
             <p className="text-white">Loading...</p>
           </div>
         </Card>
