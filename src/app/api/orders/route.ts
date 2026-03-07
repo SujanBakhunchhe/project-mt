@@ -93,6 +93,11 @@ export async function POST(req: Request) {
     // Send order confirmation email (to verified email in development)
     const emailTo = process.env.NODE_ENV === 'production' ? shipping.email : 'sujanbakhunchhe950@gmail.com';
     console.log('Sending order email to:', emailTo, 'Environment:', process.env.NODE_ENV);
+    
+    const host = req.headers.get('host') || 'localhost:3000';
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+    const baseUrl = `${protocol}://${host}`;
+    
     const emailResult = await sendOrderConfirmationEmail(emailTo, {
       orderNumber,
       total,
@@ -101,7 +106,7 @@ export async function POST(req: Request) {
         quantity: item.quantity,
         price: item.price,
       })),
-    })
+    }, baseUrl)
 
     if (!emailResult.success) {
       console.error("Failed to send order confirmation email:", emailResult.error);

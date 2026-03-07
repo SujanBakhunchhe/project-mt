@@ -28,7 +28,11 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
     // Send email notification
     try {
-      await sendOrderStatusEmail(order.user.email, order.user.name || "Customer", order.id, status);
+      const host = req.headers.get('host') || 'localhost:3000';
+      const protocol = host.includes('localhost') ? 'http' : 'https';
+      const baseUrl = `${protocol}://${host}`;
+      
+      await sendOrderStatusEmail(order.user.email, order.user.name || "Customer", order.id, status, baseUrl);
     } catch (emailError) {
       console.error("Failed to send status email:", emailError);
     }

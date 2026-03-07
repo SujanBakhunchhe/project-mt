@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { sendPasswordResetEmail } from "@/lib/email"
 import crypto from "crypto"
+import { Resend } from 'resend'
+
+const resend = new Resend(process.env.RESEND_API_KEY || 'dummy-key-for-build');
 
 export async function POST(req: Request) {
   try {
@@ -23,18 +25,45 @@ export async function POST(req: Request) {
     const token = crypto.randomBytes(32).toString("hex")
     const expiresAt = new Date(Date.now() + 3600000) // 1 hour
 
-    const resetToken = await prisma.passwordReset.create({
+    await prisma.passwordReset.create({
       data: { email: user.email, token, expiresAt },
     })
 
-    console.log("Reset token created:", { email: user.email, token })
+    // Get dynamic URL from request
+    const host = req.headers.get('host') || 'localhost:3000';
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+    const resetUrl = `${protocol}://${host}/auth/reset-password?token=${token}`;
 
-    // Try to send email (will fail with fake API key)
+    console.log("Reset URL:", resetUrl)
+
+    // Try to send email
     try {
-      await sendPasswordResetEmail(user.email, token)
+      await resend.emails.send({
+        from: 'BikeParts Nepal <onboarding@resend.dev>',
+        to: user.email,
+        subject: 'Reset Your Password',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h1 style="color: #2563eb;">Reset Your Password</h1>
+            <p>You requested to reset your password. Click the button below to reset it:</p>
+            
+            <a href="${resetUrl}" style="display: inline-block; margin: 20px 0; padding: 12px 24px; background: #2563eb; color: white; text-decoration: none; border-radius: 6px;">
+              Reset Password
+            </a>
+            
+            <p style="color: #6b7280; font-size: 14px;">
+              If you didn't request this, you can safely ignore this email.
+            </p>
+            
+            <p style="color: #6b7280; font-size: 14px;">
+              This link will expire in 1 hour.
+            </p>
+          </div>
+        `
+      });
       console.log("Email sent successfully")
     } catch (emailError) {
-      console.log("Email failed (expected with fake API key):", emailError)
+      console.log("Email failed:", emailError)
     }
 
     return NextResponse.json({ 

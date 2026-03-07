@@ -8,7 +8,8 @@ export async function sendOrderConfirmationEmail(
     orderNumber: string;
     total: number;
     items: Array<{ name: string; quantity: number; price: number }>;
-  }
+  },
+  baseUrl: string = 'http://localhost:3000'
 ) {
   try {
     console.log('Sending order confirmation email to:', to);
@@ -71,7 +72,10 @@ export async function sendOrderConfirmationEmail(
 }
 
 export async function sendPasswordResetEmail(to: string, resetToken: string) {
-  const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password?token=${resetToken}`;
+  const baseUrl = process.env.NEXTAUTH_URL || process.env.VERCEL_URL 
+    ? `https://${process.env.VERCEL_URL}` 
+    : 'http://localhost:3000';
+  const resetUrl = `${baseUrl}/auth/reset-password?token=${resetToken}`;
   
   try {
     await resend.emails.send({
@@ -150,7 +154,8 @@ export async function sendOrderStatusEmail(
   to: string,
   customerName: string,
   orderId: string,
-  status: string
+  status: string,
+  baseUrl: string = 'http://localhost:3000'
 ) {
   try {
     const statusMessages: Record<string, { subject: string; message: string; color: string }> = {
