@@ -100,9 +100,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (url.startsWith(baseUrl)) return url;
       return baseUrl;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
         token.role = user.role
+      }
+      // For OAuth, fetch role from database
+      if (account && token.sub) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: { role: true }
+        });
+        if (dbUser) {
+          token.role = dbUser.role;
+        }
       }
       return token
     },
