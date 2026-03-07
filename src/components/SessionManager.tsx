@@ -13,11 +13,14 @@ export function SessionManager() {
     const isNewSession = !sessionStorage.getItem("sessionActive");
     
     if (isNewSession) {
-      // New browser session - check if remember me was set
+      // Check if remember me was set
       const rememberMe = localStorage.getItem("rememberMe");
       
-      if (rememberMe !== "true") {
-        // Remember me not checked - logout
+      // OAuth users (no password) should always stay logged in
+      const isOAuthUser = !session.user?.email?.includes("@") || session.user?.image;
+      
+      if (rememberMe !== "true" && !isOAuthUser) {
+        // Remember me not checked and not OAuth - logout
         signOut({ redirect: false });
         return;
       }
@@ -26,13 +29,6 @@ export function SessionManager() {
       sessionStorage.setItem("sessionActive", "true");
     }
   }, [session]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      // Session storage will be cleared when browser closes
-    };
-  }, []);
 
   return null;
 }
