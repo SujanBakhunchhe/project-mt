@@ -6,6 +6,7 @@ import { PartCard } from "@/components/PartCard";
 export default function PartsPage() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState<string[]>(["All"]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -13,9 +14,15 @@ export default function PartsPage() {
       try {
         const res = await fetch("/api/products");
         const data = await res.json();
-        setProducts(data);
+        const productsArray = Array.isArray(data) ? data : [];
+        setProducts(productsArray);
+        
+        // Get unique categories from products
+        const uniqueCategories = ["All", ...new Set(productsArray.map((p: any) => p.category).filter(Boolean))];
+        setCategories(uniqueCategories);
       } catch (error) {
         console.error("Failed to fetch products");
+        setProducts([]);
       } finally {
         setLoading(false);
       }
@@ -23,7 +30,6 @@ export default function PartsPage() {
     fetchProducts();
   }, []);
 
-  const categories = ["All", "Engine", "Brakes", "Electrical", "Transmission", "Suspension", "Body"];
   const filteredParts = selectedCategory === "All" 
     ? products 
     : products.filter((p: any) => p.category === selectedCategory);

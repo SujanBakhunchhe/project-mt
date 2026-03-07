@@ -64,6 +64,27 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+model BikeBrand {
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  name      String      @unique
+  logo      String
+  createdAt DateTime    @default(now())
+  models    BikeModel[]
+}
+
+model BikeModel {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  brandId   String    @db.ObjectId
+  image     String?
+  createdAt DateTime  @default(now())
+  
+  brand     BikeBrand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  products  Product[]
+  
+  @@unique([brandId, name])
+}
+
 model Product {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String
@@ -72,14 +93,19 @@ model Product {
   marketPrice Float
   category    String
   brand       String
+  bikeModelId String?  @db.ObjectId
   model       String?
   stock       Int      @default(0)
   images      String[]
   features    String[]
   specifications Json?
+  featured    Boolean  @default(false)
+  upcoming    Boolean  @default(false)
+  releaseDate String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
+  bikeModel   BikeModel? @relation(fields: [bikeModelId], references: [id])
   orderItems  OrderItem[]
   reviews     Review[]
   wishlist    Wishlist[]

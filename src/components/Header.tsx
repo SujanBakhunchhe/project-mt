@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/components/CartProvider";
 
@@ -10,6 +11,7 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { data: session, status } = useSession();
   const { itemCount } = useCart();
+  const pathname = usePathname();
 
   return (
     <header className="border-b border-white/20 bg-white/10 backdrop-blur-2xl sticky top-0 z-50">
@@ -24,11 +26,10 @@ export function Header() {
             <span className="text-xl font-bold text-white">BikeParts Nepal</span>
           </Link>
           
-          <nav className="hidden md:flex items-center gap-6">
-            <Link href="/" className="text-white/90 hover:text-white transition-colors">Home</Link>
-            <Link href="/bikes" className="text-white/90 hover:text-white transition-colors">Bikes</Link>
-            <Link href="/parts" className="text-white/90 hover:text-white transition-colors">Parts</Link>
-            <Link href="/about" className="text-white/90 hover:text-white transition-colors">About</Link>
+          <nav className="hidden md:flex items-center gap-2">
+            <Link href="/bikes" className={`px-4 py-2 rounded-lg transition-all ${pathname?.startsWith('/bikes') ? 'bg-white/20 backdrop-blur-sm text-white font-semibold shadow-lg' : 'text-white/90 hover:bg-white/10 hover:text-white'}`}>Bikes</Link>
+            <Link href="/parts" className={`px-4 py-2 rounded-lg transition-all ${pathname === '/parts' ? 'bg-white/20 backdrop-blur-sm text-white font-semibold shadow-lg' : 'text-white/90 hover:bg-white/10 hover:text-white'}`}>Parts</Link>
+            <Link href="/about" className={`px-4 py-2 rounded-lg transition-all ${pathname === '/about' ? 'bg-white/20 backdrop-blur-sm text-white font-semibold shadow-lg' : 'text-white/90 hover:bg-white/10 hover:text-white'}`}>About</Link>
           </nav>
 
           <div className="hidden md:flex items-center gap-3">
@@ -70,16 +71,11 @@ export function Header() {
                 </Button>
               </>
             ) : (
-              <>
-                <Link href="/auth/login">
-                  <Button variant="ghost" className="text-white hover:bg-white/10">Login</Button>
-                </Link>
-                <Link href="/auth/register">
-                  <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg">
-                    Sign Up
-                  </Button>
-                </Link>
-              </>
+              <Link href="/auth/login">
+                <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg">
+                  Login
+                </Button>
+              </Link>
             )}
           </div>
 
@@ -114,13 +110,12 @@ export function Header() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden mt-4 pb-4 space-y-3">
-            <Link href="/" onClick={() => setMobileMenuOpen(false)} className="block text-white/90 hover:text-white py-2">Home</Link>
-            <Link href="/bikes" onClick={() => setMobileMenuOpen(false)} className="block text-white/90 hover:text-white py-2">Bikes</Link>
-            <Link href="/parts" onClick={() => setMobileMenuOpen(false)} className="block text-white/90 hover:text-white py-2">Parts</Link>
-            <Link href="/about" onClick={() => setMobileMenuOpen(false)} className="block text-white/90 hover:text-white py-2">About</Link>
-            <Link href="/search" onClick={() => setMobileMenuOpen(false)} className="block text-white/90 hover:text-white py-2">Search</Link>
-            <Link href="/cart" onClick={() => setMobileMenuOpen(false)} className="block text-white/90 hover:text-white py-2">
+          <div className="md:hidden mt-4 pb-4 space-y-2">
+            <Link href="/bikes" onClick={() => setMobileMenuOpen(false)} className={`block py-2 px-4 rounded-lg transition-all ${pathname?.startsWith('/bikes') ? 'bg-white/20 backdrop-blur-sm text-white font-semibold' : 'text-white/90 hover:bg-white/10 hover:text-white'}`}>Bikes</Link>
+            <Link href="/parts" onClick={() => setMobileMenuOpen(false)} className={`block py-2 px-4 rounded-lg transition-all ${pathname === '/parts' ? 'bg-white/20 backdrop-blur-sm text-white font-semibold' : 'text-white/90 hover:bg-white/10 hover:text-white'}`}>Parts</Link>
+            <Link href="/about" onClick={() => setMobileMenuOpen(false)} className={`block py-2 px-4 rounded-lg transition-all ${pathname === '/about' ? 'bg-white/20 backdrop-blur-sm text-white font-semibold' : 'text-white/90 hover:bg-white/10 hover:text-white'}`}>About</Link>
+            <Link href="/search" onClick={() => setMobileMenuOpen(false)} className="block text-white/90 hover:bg-white/10 hover:text-white py-2 px-4 rounded-lg transition-all">Search</Link>
+            <Link href="/cart" onClick={() => setMobileMenuOpen(false)} className="block text-white/90 hover:bg-white/10 hover:text-white py-2 px-4 rounded-lg transition-all">
               Cart {itemCount > 0 && `(${itemCount})`}
             </Link>
             
@@ -139,13 +134,10 @@ export function Header() {
                 </Button>
               </>
             ) : (
-              <div className="flex flex-col gap-2 pt-2">
+              <div className="pt-2">
                 <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="ghost" className="w-full text-white hover:bg-white/10">Login</Button>
-                </Link>
-                <Link href="/auth/register" onClick={() => setMobileMenuOpen(false)}>
                   <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
-                    Sign Up
+                    Login
                   </Button>
                 </Link>
               </div>

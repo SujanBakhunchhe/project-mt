@@ -26,6 +26,7 @@ export function WhiteButton({ children, className, size = "default", ...props }:
     <Button
       className={cn(
         "bg-white text-slate-900 hover:bg-gray-100 shadow-lg font-semibold transition-all hover:scale-105 hover:shadow-xl",
+        "!text-slate-900",
         className
       )}
       size={size}

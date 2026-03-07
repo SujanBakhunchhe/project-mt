@@ -7,11 +7,17 @@ export async function GET(req: Request) {
     const brand = searchParams.get("brand")
     const category = searchParams.get("category")
     const search = searchParams.get("search")
+    const featured = searchParams.get("featured")
+    const upcoming = searchParams.get("upcoming")
+    const bikeModelId = searchParams.get("bikeModelId")
 
     const where: any = {}
 
     if (brand) where.brand = brand
     if (category) where.category = category
+    if (featured === "true") where.featured = true
+    if (upcoming === "true") where.upcoming = true
+    if (bikeModelId) where.bikeModelId = bikeModelId
     if (search) {
       where.OR = [
         { name: { contains: search, mode: "insensitive" } },
@@ -21,7 +27,15 @@ export async function GET(req: Request) {
 
     const products = await prisma.product.findMany({
       where,
+      include: {
+        bikeModel: {
+          include: {
+            brand: true
+          }
+        }
+      },
       orderBy: { createdAt: "desc" },
+      take: (featured === "true" || upcoming === "true") ? 4 : undefined
     })
 
     return NextResponse.json(products)

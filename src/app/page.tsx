@@ -1,7 +1,20 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { PrimaryButton, WhiteButton } from "@/components/Buttons";
 
 export default function Home() {
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [upcomingProducts, setUpcomingProducts] = useState([]);
+  const [brands, setBrands] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch("/api/products?featured=true").then(r => r.json()).then(setFeaturedProducts);
+    fetch("/api/products?upcoming=true").then(r => r.json()).then(setUpcomingProducts);
+    fetch("/api/admin/brands").then(r => r.json()).then(data => setBrands(Array.isArray(data) ? data : []));
+  }, []);
+
   return (
     <>
       {/* Hero Section */}
@@ -96,21 +109,22 @@ export default function Home() {
               <p className="text-white/70 text-lg">Top picks for your motorcycle</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                { name: 'Engine Oil Filter', price: 450, brand: 'Honda', image: '🔧' },
-                { name: 'Brake Pads (Front)', price: 1200, brand: 'Yamaha', image: '🛠️' },
-                { name: 'Chain Sprocket Kit', price: 2500, brand: 'Bajaj', image: '⚙️' },
-                { name: 'LED Headlight', price: 1800, brand: 'Hero', image: '💡' },
-              ].map((product, i) => (
-                <Link key={i} href="/parts" className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-6 hover:scale-105 transition-transform">
-                  <div className="aspect-square bg-gradient-to-br from-blue-600/20 to-indigo-600/20 rounded-xl flex items-center justify-center mb-4">
-                    <span className="text-6xl">{product.image}</span>
+              {featuredProducts.length > 0 ? featuredProducts.map((product: any) => (
+                <Link key={product.id} href={`/product/${product.id}`} className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-6 hover:scale-105 transition-transform">
+                  <div className="aspect-square bg-gradient-to-br from-blue-600/20 to-indigo-600/20 rounded-xl flex items-center justify-center mb-4 overflow-hidden">
+                    {product.images?.[0] ? (
+                      <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover rounded-xl" />
+                    ) : (
+                      <span className="text-6xl">🔧</span>
+                    )}
                   </div>
                   <h3 className="text-white font-bold text-lg mb-2">{product.name}</h3>
                   <p className="text-white/60 text-sm mb-3">{product.brand}</p>
                   <p className="text-white text-xl font-bold">NPR {product.price}</p>
                 </Link>
-              ))}
+              )) : (
+                <p className="text-white/70 col-span-4 text-center">No featured products yet</p>
+              )}
             </div>
             <div className="text-center mt-8">
               <Link href="/parts">
@@ -128,23 +142,25 @@ export default function Home() {
               <p className="text-white/70 text-lg">Exciting new products arriving soon</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[
-                { name: 'Performance Exhaust System', brand: 'Akrapovic', date: 'March 2026', image: '🔊' },
-                { name: 'Carbon Fiber Body Kit', brand: 'Premium', date: 'April 2026', image: '🏁' },
-                { name: 'Smart Helmet with HUD', brand: 'Tech', date: 'May 2026', image: '🪖' },
-              ].map((product, i) => (
-                <div key={i} className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-6 relative overflow-hidden">
+              {upcomingProducts.length > 0 ? upcomingProducts.slice(0, 3).map((product: any) => (
+                <div key={product.id} className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-6 relative overflow-hidden">
                   <div className="absolute top-4 right-4 bg-yellow-500 text-black text-xs font-bold px-3 py-1 rounded-full">
                     Coming Soon
                   </div>
-                  <div className="aspect-square bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-xl flex items-center justify-center mb-4">
-                    <span className="text-6xl">{product.image}</span>
+                  <div className="aspect-square bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-xl flex items-center justify-center mb-4 overflow-hidden">
+                    {product.images?.[0] ? (
+                      <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover rounded-xl" />
+                    ) : (
+                      <span className="text-6xl">🔧</span>
+                    )}
                   </div>
                   <h3 className="text-white font-bold text-lg mb-2">{product.name}</h3>
                   <p className="text-white/60 text-sm mb-2">{product.brand}</p>
-                  <p className="text-white/80 text-sm">Expected: {product.date}</p>
+                  <p className="text-white/80 text-sm">Expected: {product.releaseDate || "Soon"}</p>
                 </div>
-              ))}
+              )) : (
+                <p className="text-white/70 col-span-3 text-center">No upcoming products yet</p>
+              )}
             </div>
           </div>
         </section>
@@ -157,13 +173,8 @@ export default function Home() {
               <p className="text-white/70 max-w-2xl mx-auto">Select your bike brand to find compatible parts</p>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                { name: 'Honda', logo: '/honda-logo.svg' },
-                { name: 'Yamaha', logo: '/yamaha-logo.svg' },
-                { name: 'Bajaj', logo: '/bajaj-logo.svg' },
-                { name: 'Hero', logo: '/hero-logo.svg' }
-              ].map((brand) => (
-                <Link key={brand.name} href={`/bikes/${brand.name.toLowerCase()}`}>
+              {brands.length > 0 ? brands.map((brand) => (
+                <Link key={brand.id} href={`/bikes/${brand.name.toLowerCase()}`}>
                   <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-8 text-center hover:bg-white/20 transition-all cursor-pointer group hover:-translate-y-2">
                     <div className="w-24 h-24 bg-white rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform shadow-lg p-3">
                       <img src={brand.logo} alt={`${brand.name} logo`} className="w-full h-full object-contain" />
@@ -172,7 +183,9 @@ export default function Home() {
                     <p className="text-sm text-white/60">View Parts →</p>
                   </div>
                 </Link>
-              ))}
+              )) : (
+                <p className="text-white/60 col-span-4 text-center">No brands available yet</p>
+              )}
             </div>
           </div>
         </section>

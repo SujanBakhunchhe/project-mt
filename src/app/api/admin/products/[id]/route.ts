@@ -20,11 +20,15 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         price: data.price,
         marketPrice: data.marketPrice,
         category: data.category,
-        brand: data.brand,
+        brand: data.brand || "Universal",
+        bikeModelId: data.bikeModelId || null,
         stock: data.stock,
         images: data.images || [],
         features: data.features || [],
-        specifications: data.specifications || {}
+        specifications: data.specifications || {},
+        featured: data.featured || false,
+        upcoming: data.upcoming || false,
+        releaseDate: data.releaseDate || null
       }
     });
 

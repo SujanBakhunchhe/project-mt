@@ -24,6 +24,7 @@ const geistMono = Geist_Mono({
 function LayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAuthPage = pathname?.startsWith('/auth');
+  const isAdminPage = pathname?.startsWith('/admin');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden flex flex-col">
@@ -35,11 +36,11 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       </div>
 
       <div className="relative z-10 flex-1 flex flex-col">
-        {!isAuthPage && <Header />}
+        {!isAuthPage && !isAdminPage && <Header />}
         <main className="flex-1">
           {children}
         </main>
-        {!isAuthPage && <Footer />}
+        {!isAuthPage && !isAdminPage && <Footer />}
       </div>
     </div>
   );

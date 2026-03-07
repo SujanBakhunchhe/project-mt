@@ -144,3 +144,64 @@ export async function sendContactEmail(data: {
     return { success: false, error };
   }
 }
+
+
+export async function sendOrderStatusEmail(
+  to: string,
+  customerName: string,
+  orderId: string,
+  status: string
+) {
+  try {
+    const statusMessages: Record<string, { subject: string; message: string; color: string }> = {
+      Processing: {
+        subject: "Order is Being Processed",
+        message: "Your order is currently being processed. We'll notify you once it's shipped.",
+        color: "#f59e0b"
+      },
+      Shipped: {
+        subject: "Order Shipped!",
+        message: "Great news! Your order has been shipped and is on its way to you.",
+        color: "#3b82f6"
+      },
+      Delivered: {
+        subject: "Order Delivered",
+        message: "Your order has been delivered. Thank you for shopping with us!",
+        color: "#10b981"
+      },
+      Cancelled: {
+        subject: "Order Cancelled",
+        message: "Your order has been cancelled. If you have any questions, please contact us.",
+        color: "#ef4444"
+      }
+    };
+
+    const statusInfo = statusMessages[status] || statusMessages.Processing;
+
+    await resend.emails.send({
+      from: 'BikeParts Nepal <onboarding@resend.dev>',
+      to,
+      subject: `${statusInfo.subject} - Order #${orderId.slice(-8)}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h1 style="color: ${statusInfo.color};">Order Status Update</h1>
+          <p>Hi ${customerName},</p>
+          <p>${statusInfo.message}</p>
+          
+          <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p style="margin: 0;"><strong>Order ID:</strong> ${orderId}</p>
+            <p style="margin: 10px 0 0 0;"><strong>Status:</strong> <span style="color: ${statusInfo.color};">${status}</span></p>
+          </div>
+          
+          <p>Thank you for choosing BikeParts Nepal!</p>
+          <p style="color: #6b7280; font-size: 14px;">If you have any questions, please contact us.</p>
+        </div>
+      `
+    });
+
+    console.log(`Status email sent to ${to} for order ${orderId}`);
+  } catch (error) {
+    console.error('Failed to send status email:', error);
+    throw error;
+  }
+}

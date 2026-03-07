@@ -14,11 +14,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
     signIn: "/auth/login",
   },
-  allowDangerousEmailAccountLinking: true,
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      allowDangerousEmailAccountLinking: true,
     }),
     Credentials({
       name: "credentials",

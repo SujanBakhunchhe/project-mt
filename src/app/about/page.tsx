@@ -110,7 +110,7 @@ export default function AboutPage() {
                   </Button>
                 </Link>
                 <Link href="/parts">
-                  <Button size="lg" variant="outline" className="border-2 border-white/30 text-white hover:bg-white/10 text-lg px-8 py-6">
+                  <Button size="lg" className="bg-white text-slate-900 hover:bg-gray-100 text-lg px-8 py-6 shadow-xl font-semibold">
                     View All Parts
                   </Button>
                 </Link>
