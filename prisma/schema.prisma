@@ -118,6 +118,7 @@ model Order {
   status          String      @default("pending")
   paymentMethod   String
   paymentStatus   String      @default("pending")
+  transactionId   String?
   subtotal        Float
   shipping        Float       @default(0)
   total           Float

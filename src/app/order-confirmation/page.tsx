@@ -8,21 +8,39 @@ import { PrimaryButton, WhiteButton } from "@/components/Buttons";
 function OrderConfirmationContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
-  const [orderNumber] = useState(orderId || "ORD-12345");
-  const order = {
-    id: orderNumber,
-    date: "March 6, 2026",
-    total: 2100,
-    items: [
-      { name: 'Engine Oil Filter', quantity: 2, price: 450 },
-      { name: 'Brake Pads (Front)', quantity: 1, price: 1200 },
-    ],
-    shipping: {
-      name: "Rajesh Kumar",
-      address: "Kathmandu, Nepal",
-      phone: "+977 9841234567"
+  const [order, setOrder] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (orderId) {
+      fetch(`/api/orders/${orderId}`)
+        .then(res => res.json())
+        .then(data => {
+          setOrder(data);
+          setLoading(false);
+        })
+        .catch(() => setLoading(false));
     }
-  };
+  }, [orderId]);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <p className="text-white">Loading order...</p>
+      </div>
+    );
+  }
+
+  if (!order) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <p className="text-white">Order not found</p>
+        <Link href="/orders">
+          <WhiteButton className="mt-4">View All Orders</WhiteButton>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -36,26 +54,62 @@ function OrderConfirmationContent() {
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">Order Confirmed!</h1>
           <p className="text-white/70 text-lg mb-2">Thank you for your order</p>
-          <p className="text-white/60">Order ID: <span className="text-white font-semibold">{order.id}</span></p>
+          <p className="text-white/60">Order #: <span className="text-white font-semibold">{order.orderNumber}</span></p>
         </div>
 
         {/* Order Details */}
         <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-6 md:p-8 mb-6">
           <h2 className="text-2xl font-bold text-white mb-6">Order Details</h2>
           
-          <div className="space-y-4 mb-6">
-            {order.items.map((item, i) => (
-              <div key={i} className="flex justify-between text-white/80">
-                <span>{item.name} x{item.quantity}</span>
-                <span>NPR {item.price * item.quantity}</span>
+          <div className="space-y-3 mb-6">
+            {order.items?.map((item: any) => (
+              <div key={item.id} className="flex justify-between items-center bg-white/5 p-3 rounded-lg">
+                <div>
+                  <p className="text-white font-semibold">{item.product?.name || 'Product'}</p>
+                  <p className="text-white/60 text-sm">Quantity: {item.quantity}</p>
+                </div>
+                <span className="text-white font-bold">Rs. {(item.price * item.quantity).toFixed(2)}</span>
               </div>
             ))}
           </div>
 
-          <div className="border-t border-white/20 pt-4">
-            <div className="flex justify-between text-white text-xl font-bold">
+          <div className="space-y-2 border-t border-white/20 pt-4">
+            <div className="flex justify-between text-white/80">
+              <span>Subtotal</span>
+              <span>Rs. {order.subtotal?.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-white/80">
+              <span>Shipping</span>
+              <span>Rs. {order.shipping?.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-white text-xl font-bold border-t border-white/20 pt-2 mt-2">
               <span>Total</span>
-              <span>NPR {order.total}</span>
+              <span>Rs. {order.total?.toFixed(2)}</span>
+            </div>
+          </div>
+
+          <div className="mt-6 pt-6 border-t border-white/20">
+            <div className="grid md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="text-white/60 mb-1">Payment Method</p>
+                <p className="text-white font-semibold capitalize">{order.paymentMethod}</p>
+              </div>
+              <div>
+                <p className="text-white/60 mb-1">Payment Status</p>
+                <span className={`text-xs px-3 py-1 rounded-full ${
+                  order.paymentStatus === 'paid' 
+                    ? 'bg-green-500/20 text-green-300'
+                    : 'bg-yellow-500/20 text-yellow-300'
+                }`}>
+                  {order.paymentStatus === 'paid' ? 'Paid' : 'Pending'}
+                </span>
+              </div>
+              {order.transactionId && (
+                <div className="md:col-span-2">
+                  <p className="text-white/60 mb-1">Transaction ID</p>
+                  <p className="text-white font-mono text-xs">{order.transactionId}</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -64,6 +118,13 @@ function OrderConfirmationContent() {
         <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-6 md:p-8 mb-6">
           <h2 className="text-xl font-bold text-white mb-4">Shipping To</h2>
           <div className="text-white/80 space-y-1">
+            <p className="font-semibold text-white">{order.shippingAddress?.name}</p>
+            <p>{order.shippingAddress?.address}</p>
+            <p>{order.shippingAddress?.city}</p>
+            <p>Phone: {order.shippingAddress?.phone}</p>
+            <p>Email: {order.shippingAddress?.email}</p>
+          </div>
+        </div>
             <p className="font-semibold text-white">{order.shipping.name}</p>
             <p>{order.shipping.address}</p>
             <p>{order.shipping.phone}</p>
