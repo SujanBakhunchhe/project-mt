@@ -82,10 +82,20 @@ export default function AdminBrands() {
               <Label className="text-white">Logo</Label>
               <CldUploadWidget
                 uploadPreset="bikeparts"
-                onSuccess={(result: any) => setFormData({...formData, logo: result.info.secure_url})}
+                onSuccess={(result: any) => setFormData(prev => ({...prev, logo: result.info.secure_url}))}
               >
                 {({ open }) => (
-                  <Button type="button" onClick={() => open()} className="mb-2">Upload Logo</Button>
+                  <Button 
+                    type="button" 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      open();
+                    }} 
+                    className="mb-2"
+                  >
+                    Upload Logo
+                  </Button>
                 )}
               </CldUploadWidget>
               {formData.logo && (

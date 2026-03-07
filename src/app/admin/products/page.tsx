@@ -73,7 +73,7 @@ export default function AdminProducts() {
       marketPrice: parseFloat(formData.marketPrice),
       stock: parseInt(formData.stock),
       features: formData.features.split("\n").filter(f => f.trim()),
-      specifications: formData.specifications ? JSON.parse(formData.specifications) : {}
+      specifications: { text: formData.specifications || "" }
     };
 
     const url = editingId ? `/api/admin/products/${editingId}` : "/api/admin/products";
@@ -151,7 +151,7 @@ export default function AdminProducts() {
       </div>
 
       {showForm && (
-        <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-6 mb-8">
+        <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-6 mb-8 relative z-10">
           <h2 className="text-2xl font-bold text-white mb-4">{editingId ? "Edit" : "Add"} Product</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid md:grid-cols-2 gap-4">
@@ -201,20 +201,18 @@ export default function AdminProducts() {
                   className="w-full bg-slate-800 border border-white/20 text-white rounded-lg p-2 cursor-pointer hover:bg-slate-700 transition-colors"
                   style={{ colorScheme: 'dark' }}
                 >
-                  <option value="">Select category</option>
+                  <option value="">Select or type category</option>
                   {categories.map(cat => (
                     <option key={cat} value={cat} className="bg-slate-800">{cat}</option>
                   ))}
-                  <option value="__new__" className="bg-slate-700 font-semibold">+ Add New Category</option>
                 </select>
-                {formData.category === '__new__' && (
-                  <Input 
-                    placeholder="Enter new category name" 
-                    onChange={e => setFormData({...formData, category: e.target.value})}
-                    className="bg-white/10 border-white/20 text-white mt-2"
-                    autoFocus
-                  />
-                )}
+                <p className="text-white/50 text-xs mt-1">Or type a new category name below</p>
+                <Input 
+                  value={formData.category} 
+                  onChange={e => setFormData({...formData, category: e.target.value})} 
+                  placeholder="Type new category name"
+                  className="bg-white/10 border-white/20 text-white mt-2"
+                />
               </div>
               <div>
                 <Label className="text-white">Stock</Label>
@@ -232,11 +230,22 @@ export default function AdminProducts() {
               <CldUploadWidget
                 uploadPreset="bikeparts"
                 onSuccess={(result: any) => {
-                  setFormData({...formData, images: [...formData.images, result.info.secure_url]});
+                  const newImages = [...formData.images, result.info.secure_url];
+                  setFormData(prev => ({...prev, images: newImages}));
                 }}
               >
                 {({ open }) => (
-                  <Button type="button" onClick={() => open()} className="mb-2">Upload Image</Button>
+                  <Button 
+                    type="button" 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      open();
+                    }} 
+                    className="mb-2"
+                  >
+                    Upload Image
+                  </Button>
                 )}
               </CldUploadWidget>
               <div className="flex gap-2 flex-wrap">
@@ -255,8 +264,15 @@ export default function AdminProducts() {
             </div>
 
             <div>
-              <Label className="text-white">Specifications (JSON)</Label>
-              <textarea value={formData.specifications} onChange={e => setFormData({...formData, specifications: e.target.value})} className="w-full bg-white/10 border border-white/20 text-white rounded-lg p-2 font-mono text-sm" rows={4} />
+              <Label className="text-white">Specifications</Label>
+              <textarea 
+                value={formData.specifications} 
+                onChange={e => setFormData({...formData, specifications: e.target.value})} 
+                className="w-full bg-white/10 border border-white/20 text-white rounded-lg p-2 text-sm" 
+                rows={4}
+                placeholder="Weight: 150kg, Power: 15HP, Engine: 150cc"
+              />
+              <p className="text-white/50 text-xs mt-1">Write any text format you want</p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">
@@ -310,15 +326,15 @@ export default function AdminProducts() {
           </div>
         ) : (
           products.map((product: any) => (
-            <div key={product.id} className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all">
-              <div className="flex gap-4">
+            <div key={product.id} className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-4 md:p-6 hover:bg-white/15 transition-all">
+              <div className="flex flex-col sm:flex-row gap-4">
                 {product.images?.[0] && (
-                  <div className="w-20 h-20 bg-white/5 rounded-xl overflow-hidden flex-shrink-0">
+                  <div className="w-full sm:w-20 h-32 sm:h-20 bg-white/5 rounded-xl overflow-hidden flex-shrink-0">
                     <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
                   </div>
                 )}
-                <div className="flex-1">
-                  <div className="flex items-start justify-between mb-2">
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-2 gap-2">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="text-xl font-bold text-white">{product.name}</h3>
@@ -329,20 +345,20 @@ export default function AdminProducts() {
                           <span className="bg-purple-500/20 text-purple-300 text-xs px-2 py-1 rounded">Upcoming</span>
                         )}
                       </div>
-                      <p className="text-white/70 text-sm">{product.brand} • {product.category}</p>
+                      <p className="text-white/70 text-sm truncate">{product.brand} • {product.category}</p>
                     </div>
-                    <div className="text-right">
-                      <p className="text-2xl font-bold text-white">NPR {product.price}</p>
-                      <p className="text-white/50 text-sm line-through">NPR {product.marketPrice}</p>
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-xl md:text-2xl font-bold text-white whitespace-nowrap">NPR {product.price}</p>
+                      <p className="text-white/50 text-xs md:text-sm line-through whitespace-nowrap">NPR {product.marketPrice}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 text-sm text-white/60 mb-3">
+                  <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs md:text-sm text-white/60 mb-3">
                     <span>Stock: {product.stock}</span>
                     <span>•</span>
                     <span>{product.images?.length || 0} images</span>
                   </div>
-                  <div className="flex gap-2">
-                    <Button onClick={() => handleEdit(product)} variant="outline" className="bg-white/5 hover:bg-white/10 border-white/20">
+                  <div className="flex flex-wrap gap-2">
+                    <Button onClick={() => handleEdit(product)} variant="outline" className="bg-white/5 hover:bg-white/10 border-white/20 text-sm">
                       Edit
                     </Button>
                     <Button onClick={() => handleDelete(product.id)} className="bg-red-600/80 hover:bg-red-600">

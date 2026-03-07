@@ -118,10 +118,19 @@ export default function AdminModels() {
               <Label className="text-white">Image (Optional)</Label>
               <CldUploadWidget
                 uploadPreset="bikeparts"
-                onSuccess={(result: any) => setFormData({...formData, image: result.info.secure_url})}
+                onSuccess={(result: any) => setFormData(prev => ({...prev, image: result.info.secure_url}))}
               >
                 {({ open }) => (
-                  <Button type="button" onClick={() => open()}>Upload Image</Button>
+                  <Button 
+                    type="button" 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      open();
+                    }}
+                  >
+                    Upload Image
+                  </Button>
                 )}
               </CldUploadWidget>
               {formData.image && (

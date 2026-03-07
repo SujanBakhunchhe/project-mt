@@ -9,15 +9,11 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get unique categories from products
-    const products = await prisma.product.findMany({
-      select: { category: true },
-      distinct: ['category']
+    const categories = await prisma.category.findMany({
+      orderBy: { name: 'asc' }
     });
 
-    const categories = products.map(p => p.category).filter(Boolean).sort();
-
-    return NextResponse.json(categories);
+    return NextResponse.json(categories.map(c => c.name));
   } catch (error) {
     return NextResponse.json({ error: "Failed to fetch categories" }, { status: 500 });
   }
@@ -32,18 +28,19 @@ export async function POST(req: Request) {
 
     const { name } = await req.json();
     
-    // Check if category already exists
-    const existing = await prisma.product.findFirst({
-      where: { category: name }
+    console.log("Creating category:", name);
+    
+    await prisma.category.create({
+      data: { name: name.trim() }
     });
 
-    if (existing) {
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error("Category creation error:", error);
+    if (error.code === 'P2002') {
       return NextResponse.json({ error: "Category already exists" }, { status: 400 });
     }
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    return NextResponse.json({ error: "Failed to add category" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to add category", details: error.message }, { status: 500 });
   }
 }
 
@@ -66,6 +63,10 @@ export async function DELETE(req: Request) {
         error: `Cannot delete. ${productsWithCategory} product(s) use this category.` 
       }, { status: 400 });
     }
+    
+    await prisma.category.delete({
+      where: { name }
+    });
     
     return NextResponse.json({ success: true });
   } catch (error) {

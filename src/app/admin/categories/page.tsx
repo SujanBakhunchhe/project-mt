@@ -18,7 +18,7 @@ export default function AdminCategories() {
   const fetchCategories = async () => {
     const res = await fetch("/api/admin/categories");
     const data = await res.json();
-    setCategories(data);
+    setCategories(Array.isArray(data) ? data : []);
   };
 
   const handleAdd = async (e: React.FormEvent) => {
@@ -36,7 +36,8 @@ export default function AdminCategories() {
       setNewCategory("");
       fetchCategories();
     } else {
-      showToast("Failed to add category", "error");
+      const error = await res.json();
+      showToast(error.error || "Failed to add category", "error");
     }
   };
 
@@ -89,7 +90,7 @@ export default function AdminCategories() {
           <h2 className="text-xl font-bold text-white mb-4">Existing Categories ({categories.length})</h2>
           <div className="space-y-2 max-h-96 overflow-y-auto">
             {categories.length === 0 ? (
-              <p className="text-white/60 text-center py-8">No categories yet</p>
+              <p className="text-white/60 text-center py-8">No categories yet. Add one above!</p>
             ) : (
               categories.map((category) => (
                 <div key={category} className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
